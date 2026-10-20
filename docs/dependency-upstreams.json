@@ -1,0 +1,68 @@
+[
+  {
+    "file": "protobuf-c-abc67a11c6db.tar.gz",
+    "url": "https://codeload.github.com/protobuf-c/protobuf-c/tar.gz/abc67a11c6db271bedbb9f58be85d6f4e2ea8389",
+    "sha256": "6f41b467d7b7242bb201f6466ba433f6eab943e2b6fc53bb753340632c9e45e2",
+    "bytes": 134746
+  },
+  {
+    "file": "cJSON-87d8f0961a01.tar.gz",
+    "url": "https://codeload.github.com/DaveGamble/cJSON/tar.gz/87d8f0961a01bf09bef98ff89bae9fdec42181ee",
+    "sha256": "b2a802fd0c4e4066361dc38c8faaf1c6f18799a161d45d9e5f42816b6bd0801a",
+    "bytes": 353969
+  },
+  {
+    "file": "spiffs-0dbb3f71c5f6.tar.gz",
+    "url": "https://codeload.github.com/pellepl/spiffs/tar.gz/0dbb3f71c5f6fae3747a9d935372773762baf852",
+    "sha256": "ad2f6bd71024d8aa917b860fc0e1e242c10984219ed3460be09a375803a72517",
+    "bytes": 100473
+  },
+  {
+    "file": "esp-phy-lib-dcfdccf6cc2f.tar.gz",
+    "url": "https://codeload.github.com/espressif/esp-phy-lib/tar.gz/dcfdccf6cc2fc02d0886624b7998c890d1a19b28",
+    "sha256": "b2bf99d3f309602ecacb4052f2dac96d4974bb577f730966745d58d3eb04458a",
+    "bytes": 943047
+  },
+  {
+    "file": "esp-lwip-a45be9e438f6.tar.gz",
+    "url": "https://codeload.github.com/espressif/esp-lwip/tar.gz/a45be9e438f6cf9c54ec150581819c3b95d5af6b",
+    "sha256": "6ac1ec5f20432ef96d8a91e6437442316aef0c418e164fe2e57eca8e69025ee1",
+    "bytes": 1167399
+  },
+  {
+    "file": "esp32c3-bt-lib-e5c0f7256ecf.tar.gz",
+    "url": "https://codeload.github.com/espressif/esp32c3-bt-lib/tar.gz/e5c0f7256ecf5b5f8eb28c1793051a6b88f95124",
+    "sha256": "9314d28f13fd6d8999c19e12c6c204c5cfd66e2f72cb72327da0fd154ba0351e",
+    "bytes": 321208
+  },
+  {
+    "file": "esp32-wifi-lib-f2aae4d44ec7.tar.gz",
+    "url": "https://codeload.github.com/espressif/esp32-wifi-lib/tar.gz/f2aae4d44ec7908013066e69d29b9948846c335c",
+    "sha256": "b3b1b12a6a8be12ebd0e155e57ab38150a4a49378554c26583f42855f055aaa8",
+    "bytes": 3849210
+  },
+  {
+    "file": "mbedtls-2b8e772fc1cb.tar.gz",
+    "url": "https://codeload.github.com/espressif/mbedtls/tar.gz/2b8e772fc1cb0732cda3bae7d1e9d6f4cfaf63d9",
+    "sha256": "7c47e87902c9153706fc469a5f7b609bd67c02e00e4ac3c977137bc74b5507d9",
+    "bytes": 3993927
+  },
+  {
+    "file": "esp-idf-4.4.7.tar.gz",
+    "url": "https://codeload.github.com/espressif/esp-idf/tar.gz/38eeba213aa695aabfd6d89aa9f5078dbe5a94c3",
+    "sha256": "397194be939889b8daefae7b1d797efa1bf9adbdc79b8bf78a248216aaf65920",
+    "bytes": 63372578
+  },
+  {
+    "file": "lib-builder-956a355d51e7.tar.gz",
+    "url": "https://codeload.github.com/espressif/esp32-arduino-lib-builder/tar.gz/956a355d51e7f4c3a454e193a9c28fcf321a452f",
+    "sha256": "ee1708d03b14daf9ce0ecd6529a4cdfbabc78e7389f2f6105cd71395a2ca9fae",
+    "bytes": 36449
+  },
+  {
+    "file": "esp-insights-203a87f67171.tar.gz",
+    "url": "https://codeload.github.com/espressif/esp-insights/tar.gz/203a87f671710295579404f7d4c62a8a5e25ae7c",
+    "sha256": "b18f37160670cfc90bb1f8c6b11b63fd263bd9f8ccddaf2fc9de7bf439dd2c5b",
+    "bytes": 2466709
+  }
+]

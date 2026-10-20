@@ -1,0 +1,13 @@
+{
+  "SSID": "YOUR_IPHONE_HOTSPOT_NAME",
+  "WifiPW": "YOUR_HOTSPOT_PASSWORD",
+  "PoolUrl": "public-pool.io",
+  "PoolPort": 21496,
+  "PoolPassword": "x",
+  "BtcWallet": "REPLACE_WITH_YOUR_BITCOIN_MAINNET_RECEIVING_ADDRESS",
+  "WorkerName": "SOLOMINER",
+  "PosixTZ": "UTC0",
+  "ClockFormat": 12,
+  "ScreenBrightness": 150,
+  "IdleBatterySaver": true
+}

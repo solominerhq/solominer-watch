@@ -1,0 +1,53 @@
+.idea/
+.pio
+.vscode
+.vs
+*.sln
+*.vcxproj*
+bin/
+logs/
+.DS_Store
+
+# Build outputs — CI builds these fresh; never commit binaries
+firmware/
+lib/
+
+# Private artwork originals — keep out of public repo
+/branding/
+
+# Private development notes, media, and design exports
+/internal/
+/reports/
+/backups/
+/product-images/
+/*.html
+/*.pdf
+/*.docx
+/*.xlsx
+/*.gif
+
+# Local Python build/test environments
+.venv/
+__pycache__/
+*.pyc
+
+# Credentials, recordings, local release archives and generated tooling
+.env
+.env.*
+!.env.example
+config.json
+config.private.json
+*.log
+*.tar.gz
+*.zip
+/private/
+/publication-review/
+/dist/
+/tools/font-converter/
+apply_*_update.py
+*-baseline.json
+*-deleted.json
+before-*.tar.gz
+
+# Local audio is embedded only under the ignored build directory.
+**/celebration_track_data.h

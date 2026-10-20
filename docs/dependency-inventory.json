@@ -1,0 +1,780 @@
+{
+  "audit_date": "2026-10-20",
+  "environment": "Waveshare-AMOLED-206",
+  "platform": "espressif32@6.11.0",
+  "arduino_package": {
+    "name": "framework-arduinoespressif32",
+    "version": "3.20017.241212+sha.dcc1105b",
+    "description": "Arduino Wiring-based Framework for the Espressif ESP32, ESP32-S and ESP32-C series of SoCs",
+    "keywords": [
+      "framework",
+      "arduino",
+      "espressif",
+      "esp32"
+    ],
+    "license": "LGPL-2.1-or-later",
+    "repository": {
+      "type": "git",
+      "url": "https://github.com/espressif/arduino-esp32"
+    }
+  },
+  "sdk_idf_commit": "38eeba213aa695aabfd6d89aa9f5078dbe5a94c3",
+  "sdk_idf_version": "4.4.7-dirty",
+  "framework_source_note": "Exact installed files archived; historical audit differences documented in DEPENDENCY_AUDIT.md.",
+  "dependency_bundle": {
+    "archive": "SOLOMINER-v3.0.0-dependencies-PRIVATE-REVIEW.zip",
+    "sha256": "8620e1660203ba4043481a6ea64355a0b73c2a1253b4d09a71e194116a7a90db",
+    "bytes": 187977311,
+    "payload_files": 6635,
+    "scope": "Private-review dependency/source snapshot; vendor SDK archives included; no application firmware or commercial audio"
+  },
+  "direct_library_metadata": [
+    {
+      "name": "ArduinoJson",
+      "metadata": {
+        "name": "ArduinoJson",
+        "keywords": "json, rest, http, web",
+        "description": "A simple and efficient JSON library for embedded C++. ArduinoJson supports \u2714 serialization, \u2714 deserialization, \u2714 MessagePack, \u2714 fixed allocation, \u2714 zero-copy, \u2714 streams, \u2714 filtering, and more. It is the most popular Arduino library on GitHub \u2764\u2764\u2764\u2764\u2764. Check out arduinojson.org for a comprehensive documentation.",
+        "homepage": "https://arduinojson.org/?utm_source=meta&utm_medium=library.json",
+        "repository": {
+          "type": "git",
+          "url": "https://github.com/bblanchon/ArduinoJson.git"
+        },
+        "version": "6.21.6",
+        "authors": {
+          "name": "Benoit Blanchon",
+          "url": "https://blog.benoitblanchon.fr"
+        },
+        "export": {
+          "include": [
+            "src",
+            "examples",
+            "LICENSE.txt",
+            "ArduinoJson.h"
+          ]
+        },
+        "frameworks": "*",
+        "platforms": "*",
+        "build": {
+          "libArchive": false
+        }
+      },
+      "archive_prefix": "libraries/ArduinoJson"
+    },
+    {
+      "name": "WiFiManager",
+      "metadata": {
+        "name": "WiFiManager",
+        "version": "2.0.17",
+        "keywords": "wifi,wi-fi,esp,esp8266,esp32,espressif8266,espressif32,nodemcu,wemos,arduino",
+        "description": "WiFi Configuration manager with web configuration portal for ESP boards",
+        "authors": [
+          {
+            "name": "tzapu",
+            "url": "https://github.com/tzapu"
+          },
+          {
+            "name": "tablatronix",
+            "url": "https://github.com/tablatronix",
+            "maintainer": true
+          }
+        ],
+        "repository": {
+          "type": "git",
+          "url": "https://github.com/tzapu/WiFiManager.git"
+        },
+        "frameworks": "arduino",
+        "platforms": [
+          "espressif8266",
+          "espressif32"
+        ]
+      },
+      "archive_prefix": "libraries/WiFiManager"
+    },
+    {
+      "name": "OneButton",
+      "metadata": {
+        "name": "OneButton",
+        "version": "2.6.2",
+        "keywords": "arduino, button, pushbutton",
+        "description": "This Arduino library is improving the usage of a singe button for input. It shows how to use an digital input pin with a single pushbutton attached for detecting some of the typical button press events like single clicks, double clicks and long-time pressing. This enables you to reuse the same button for multiple functions and lowers the hardware invests.",
+        "repository": {
+          "type": "git",
+          "url": "https://github.com/mathertel/OneButton"
+        },
+        "authors": {
+          "name": "Matthias Hertel",
+          "email": "mathertel@hotmail.com",
+          "url": "https://www.mathertel.de/impressum.aspx"
+        },
+        "license": "BSD-3-Clause",
+        "homepage": "http://www.mathertel.de/Arduino/OneButtonLibrary.aspx",
+        "frameworks": "arduino",
+        "platforms": "*"
+      },
+      "archive_prefix": "libraries/OneButton"
+    },
+    {
+      "name": "NTPClient",
+      "metadata": {
+        "library.properties": "name=NTPClient\nversion=3.2.1\nauthor=Fabrice Weinberg\nmaintainer=Fabrice Weinberg <fabrice@weinberg.me>\nsentence=An NTPClient to connect to a time server\nparagraph=Get time from a NTP server and keep it in sync.\ncategory=Timing\nurl=https://github.com/arduino-libraries/NTPClient\narchitectures=*\n"
+      },
+      "archive_prefix": "libraries/NTPClient"
+    },
+    {
+      "name": "GFX Library for Arduino",
+      "metadata": {
+        "library.properties": "name=GFX Library for Arduino\nversion=1.6.4\nauthor=Moon On Our Nation <moononournation@gmail.com>\nmaintainer=Moon On Our Nation <moononournation@gmail.com>\nsentence=Arduino_GFX is a GFX library for various color displays with various data bus interfaces\nparagraph=Arduino_GFX is a Arduino graphics library. Currently support GC9A01 round display, GC9106, GC9107, HX8347C, HX8347D, HX8352C, HX8357A, HX8357B, HX8369A, ILI6122, ILI9225, ILI9331, ILI9341, ILI9342(M5Stack, ESP32-S3-BOX), ILI9481, ILI9486, ILI9488, ILI9806, JBT6K71, NT35310, NT35510, NT39125, NV3041A, OTM8009A, R61529, RM67162, SEPS525, SSD1283A, SSD1331, SSD1351, ST7735, ST7789, ST7796 and virtually all Raspberry Pi DPI (RGB) display. Tested RGB display: GC9503V, ILI6485, ST7262, ST7701. Currently support software SPI (8-bit and 9-bit), hardware SPI (8-bit, ESP32 also support 9-bit), 8-bit parallel interface(AVR, ESP32, RPi Pico, RTL8720, STM32), 16-bit parallel interface(ESP32 and RPi Pico) and RGB Panel interface(ESP32S3).\ncategory=Display\nurl=https://github.com/moononournation/Arduino_GFX\n"
+      },
+      "archive_prefix": "libraries/GFX Library for Arduino"
+    },
+    {
+      "name": "lvgl",
+      "metadata": {
+        "name": "lvgl",
+        "version": "9.3.0",
+        "keywords": "graphics, gui, embedded, tft, lvgl",
+        "description": "Graphics library to create embedded GUI with easy-to-use graphical elements, beautiful visual effects and low memory footprint. It offers anti-aliasing, opacity, and animations using only one frame buffer.",
+        "repository": {
+          "type": "git",
+          "url": "https://github.com/lvgl/lvgl.git"
+        },
+        "build": {
+          "includeDir": "."
+        },
+        "license": "MIT",
+        "homepage": "https://lvgl.io",
+        "frameworks": "*",
+        "platforms": "*"
+      },
+      "archive_prefix": "libraries/lvgl"
+    },
+    {
+      "name": "XPowersLib",
+      "metadata": {
+        "name": "XPowersLib",
+        "version": "0.2.6",
+        "description": "Arduino, CircuitPython, Micropython, esp-idf and other frameworks power management series library",
+        "keywords": "AXP192,AXP202,AXP2101,SY6970,BQ25896,HUSB238",
+        "authors": [
+          {
+            "name": "LewisHe",
+            "url": "https://github.com/lewisxhe",
+            "maintainer": true
+          }
+        ],
+        "repository": {
+          "type": "git",
+          "url": "https://github.com/lewisxhe/XPowersLib.git"
+        },
+        "homepage": "https://github.com/lewisxhe/XPowersLib",
+        "export": {
+          "include": [
+            "LICENSE",
+            "library.json",
+            "library.properties",
+            "README.md",
+            "keywords.txt",
+            "src/*",
+            "examples/*"
+          ]
+        },
+        "examples": [
+          {
+            "name": "AXP192_Example",
+            "base": "examples/AXP192_Example",
+            "files": [
+              "AXP192_Example.ino"
+            ]
+          },
+          {
+            "name": "AXP202_Example",
+            "base": "examples/AXP202_Example",
+            "files": [
+              "AXP202_Example.ino"
+            ]
+          },
+          {
+            "name": "AXP2101_Charge_Example",
+            "base": "examples/AXP2101_Charge_Example",
+            "files": [
+              "AXP2101_Charge_Example.ino"
+            ]
+          },
+          {
+            "name": "AXP2101_Example",
+            "base": "examples/AXP2101_Example",
+            "files": [
+              "AXP2101_Example.ino"
+            ]
+          },
+          {
+            "name": "AXP2101_InterruptExample",
+            "base": "examples/AXP2101_InterruptExample",
+            "files": [
+              "AXP2101_InterruptExample.ino"
+            ]
+          },
+          {
+            "name": "AXP2101_Voltage_Example",
+            "base": "examples/AXP2101_Voltage_Example",
+            "files": [
+              "AXP2101_Voltage_Example.ino"
+            ]
+          },
+          {
+            "name": "AXP2101_ADC_Example",
+            "base": "examples/AXP2101_ADC_Example",
+            "files": [
+              "AXP2101_ADC_Example.ino"
+            ]
+          },
+          {
+            "name": "AXP2101_Sleep_Example",
+            "base": "examples/AXP2101_Sleep_Example",
+            "files": [
+              "AXP2101_Sleep_Example.ino"
+            ]
+          },
+          {
+            "name": "AXP2101_Charge_Current_Setting",
+            "base": "examples/AXP2101_Charge_Current_Setting",
+            "files": [
+              "AXP2101_Charge_Current_Setting.ino"
+            ]
+          },
+          {
+            "name": "AXP2101_LowBatteryWarningExample",
+            "base": "examples/AXP2101_LowBatteryWarningExample",
+            "files": [
+              "AXP2101_LowBatteryWarningExample.ino"
+            ]
+          },
+          {
+            "name": "ESP_IDF_Example",
+            "base": "examples/ESP_IDF_Example/main",
+            "files": [
+              "main.cpp",
+              "port_axp192.cpp",
+              "port_axp2101.cpp",
+              "port_i2c.cpp"
+            ]
+          },
+          {
+            "name": "XPowersLibInterface_Example",
+            "base": "examples/XPowersLibInterface_Example",
+            "files": [
+              "XPowersLibInterface_Example.ino"
+            ]
+          },
+          {
+            "name": "SY6970_Example",
+            "base": "examples/SY6970_Example",
+            "files": [
+              "SY6970_Example.ino"
+            ]
+          },
+          {
+            "name": "SY6970_Watchdog_Example",
+            "base": "examples/SY6970_Watchdog_Example",
+            "files": [
+              "SY6970_Watchdog_Example.ino"
+            ]
+          },
+          {
+            "name": "SY6970_Shutdown_Example",
+            "base": "examples/SY6970_Shutdown_Example",
+            "files": [
+              "SY6970_Shutdown_Example.ino"
+            ]
+          },
+          {
+            "name": "BQ25896_Example",
+            "base": "examples/BQ25896_Example",
+            "files": [
+              "BQ25896_Example.ino"
+            ]
+          },
+          {
+            "name": "BQ25896_Shutdown_Example",
+            "base": "examples/BQ25896_Shutdown_Example",
+            "files": [
+              "BQ25896_Shutdown_Example.ino"
+            ]
+          },
+          {
+            "name": "FastCharging_BleUartDebug",
+            "base": "examples/FastCharging_BleUartDebug",
+            "files": [
+              "FastCharging_BleUartDebug.ino"
+            ]
+          },
+          {
+            "name": "PowerDeliveryHUSB238_BleUart",
+            "base": "examples/PowerDeliveryHUSB238_BleUart",
+            "files": [
+              "PowerDeliveryHUSB238_BleUart.ino"
+            ]
+          },
+          {
+            "name": "PowerDeliveryHUSB238_Example",
+            "base": "examples/PowerDeliveryHUSB238_Example",
+            "files": [
+              "PowerDeliveryHUSB238_Example.ino"
+            ]
+          },
+          {
+            "name": "XPowersLibInterface_Linux",
+            "base": "examples/XPowersLibInterface_Linux",
+            "files": [
+              "main.cpp"
+            ]
+          }
+        ],
+        "frameworks": [
+          "arduino",
+          "espidf"
+        ],
+        "platforms": "ststm32,espressif32,nordicnrf52",
+        "headers": "XPowersLib.h",
+        "license": "MIT"
+      },
+      "archive_prefix": "libraries/XPowersLib"
+    }
+  ],
+  "selected_archives": [
+    {
+      "path": ".pio/build/Waveshare-AMOLED-206/lib4e6/libWiFi.a",
+      "sha256": "8a247d139dd1b6ff065c0f3c335de0090c0f0d8afe194bf4e61da8018ace0a66",
+      "bytes": 1995832,
+      "retained_nonzero_sections": true
+    },
+    {
+      "path": ".pio/build/Waveshare-AMOLED-206/lib52d/libWebServer.a",
+      "sha256": "6ae10101762e69569c5e5fa5568f7da5ff2813a0c76d4c157f2ad105239a5f8a",
+      "bytes": 927638,
+      "retained_nonzero_sections": true
+    },
+    {
+      "path": ".pio/build/Waveshare-AMOLED-206/lib612/libSPIFFS.a",
+      "sha256": "9f78a24266ec5dda32a7f2c7354ea91476946f7813bf99644ab9983e6999bdb7",
+      "bytes": 171214,
+      "retained_nonzero_sections": true
+    },
+    {
+      "path": ".pio/build/Waveshare-AMOLED-206/lib687/libFS.a",
+      "sha256": "6f447ff6f6d6339bdc5cd834d913284606e206290edf46b5fad87ebb02488f8d",
+      "bytes": 505894,
+      "retained_nonzero_sections": true
+    },
+    {
+      "path": ".pio/build/Waveshare-AMOLED-206/lib6d7/libWire.a",
+      "sha256": "ac4b8aacc045184766c21459f34c56f630e7ff1c9bb95d2d35017a48065e8cc0",
+      "bytes": 201878,
+      "retained_nonzero_sections": true
+    },
+    {
+      "path": ".pio/build/Waveshare-AMOLED-206/lib83b/libXPowersLib.a",
+      "sha256": "2feb04b46f6ce0181a9cc37a4c49358e60077f35f9e053dc98a8036a56f91ae1",
+      "bytes": 134284,
+      "retained_nonzero_sections": true
+    },
+    {
+      "path": ".pio/build/Waveshare-AMOLED-206/lib98c/libGFX Library for Arduino.a",
+      "sha256": "d3d801047c158da661ea1d250913546490a466462a73392dea4fe06be680824f",
+      "bytes": 13204648,
+      "retained_nonzero_sections": true
+    },
+    {
+      "path": ".pio/build/Waveshare-AMOLED-206/libFrameworkArduino.a",
+      "sha256": "3cfbcf81df46bbb3fcd23e5350b0848a01202d3ed82a34f208e66ba568a7cae6",
+      "bytes": 4317946,
+      "retained_nonzero_sections": true
+    },
+    {
+      "path": ".pio/build/Waveshare-AMOLED-206/libaaa/libUpdate.a",
+      "sha256": "a180cd46f9401f12298b128fcb2de659472c48e518c8e424b78661b41690b3e4",
+      "bytes": 229772,
+      "retained_nonzero_sections": true
+    },
+    {
+      "path": ".pio/build/Waveshare-AMOLED-206/libacf/libOneButton.a",
+      "sha256": "f4656ec1cd8e6b93f916023e49c88918933d8b7685343ada6523d4a4b5ccd5ff",
+      "bytes": 232276,
+      "retained_nonzero_sections": true
+    },
+    {
+      "path": ".pio/build/Waveshare-AMOLED-206/libad4/libDNSServer.a",
+      "sha256": "1db2480c4d42315a0988387949e35cca3b1f6b0e38baa53d7e1436cd938828d5",
+      "bytes": 125542,
+      "retained_nonzero_sections": true
+    },
+    {
+      "path": ".pio/build/Waveshare-AMOLED-206/libb0a/libNTPClient.a",
+      "sha256": "868d75272e4bd8c6a61eea8bc1d7d4808eb649a782318e3c063cf275031132de",
+      "bytes": 140344,
+      "retained_nonzero_sections": true
+    },
+    {
+      "path": ".pio/build/Waveshare-AMOLED-206/libd64/liblvgl.a",
+      "sha256": "3b19a6dada62c7711fd615ad6999f26064ed4986c43f103e38959aaaafa2f41d",
+      "bytes": 10679170,
+      "retained_nonzero_sections": true
+    },
+    {
+      "path": ".pio/build/Waveshare-AMOLED-206/libd98/libWiFiManager.a",
+      "sha256": "e5f73f6a544c2a3e26e900fd631a70c3cf795fe36eb91d5a0c6a06033eaad584",
+      "bytes": 1722404,
+      "retained_nonzero_sections": true
+    },
+    {
+      "path": "platformio-packages/framework-arduinoespressif32/tools/sdk/esp32s3/ld/libbtbb.a",
+      "sha256": "9ce018fb5d7753318ccf1e8386ced5d45a0b0d90f07352946a03c8689539073f",
+      "bytes": 19818,
+      "retained_nonzero_sections": false
+    },
+    {
+      "path": "platformio-packages/framework-arduinoespressif32/tools/sdk/esp32s3/ld/libbtdm_app.a",
+      "sha256": "3a766cbdf78cde3d2d0eee40bf601c09be88c6589a629815e8d59b91b271d1dc",
+      "bytes": 541800,
+      "retained_nonzero_sections": false
+    },
+    {
+      "path": "platformio-packages/framework-arduinoespressif32/tools/sdk/esp32s3/ld/libphy.a",
+      "sha256": "c8f6c6821c7e8e28c97f3a797e322d9987a0f3fd5f5da5e971ab0111ba513160",
+      "bytes": 241614,
+      "retained_nonzero_sections": true
+    },
+    {
+      "path": "platformio-packages/framework-arduinoespressif32/tools/sdk/esp32s3/lib/libapp_update.a",
+      "sha256": "63b0e765f044b9c4f58e8b4c5643daa902bb243210747e8b1df88c67c4520f9d",
+      "bytes": 146988,
+      "retained_nonzero_sections": true
+    },
+    {
+      "path": "platformio-packages/framework-arduinoespressif32/tools/sdk/esp32s3/lib/libbt.a",
+      "sha256": "48fe8a1427a6476e2a8671bc893bd0e346d1658f3714b97d25ca091487748365",
+      "bytes": 21780332,
+      "retained_nonzero_sections": true
+    },
+    {
+      "path": "platformio-packages/framework-arduinoespressif32/tools/sdk/esp32s3/lib/libcoexist.a",
+      "sha256": "0c61713a461511973e0d4270bcf6c75587fb5da361f0636c8346c960516ef05a",
+      "bytes": 85092,
+      "retained_nonzero_sections": true
+    },
+    {
+      "path": "platformio-packages/framework-arduinoespressif32/tools/sdk/esp32s3/lib/libcore.a",
+      "sha256": "193092d7be420934e1a865fccfa50f223e6829cd0f47ebbc6b0d4940c7bfb981",
+      "bytes": 4820,
+      "retained_nonzero_sections": true
+    },
+    {
+      "path": "platformio-packages/framework-arduinoespressif32/tools/sdk/esp32s3/lib/libcxx.a",
+      "sha256": "295951e87b7152a7364d45f5435ac24408a80dbe32fedf326e97edda8fc60412",
+      "bytes": 59530,
+      "retained_nonzero_sections": true
+    },
+    {
+      "path": "platformio-packages/framework-arduinoespressif32/tools/sdk/esp32s3/lib/libdriver.a",
+      "sha256": "b8ab992d477263dba3306c057af7cb08f2808a22bc6aeec668c3a0d20e189773",
+      "bytes": 5359990,
+      "retained_nonzero_sections": true
+    },
+    {
+      "path": "platformio-packages/framework-arduinoespressif32/tools/sdk/esp32s3/lib/libefuse.a",
+      "sha256": "c65c8266bfa4170e534f9e3a9c744566f09f1f8e71da6bdf60ce9488be5a1ff2",
+      "bytes": 505220,
+      "retained_nonzero_sections": true
+    },
+    {
+      "path": "platformio-packages/framework-arduinoespressif32/tools/sdk/esp32s3/lib/libesp_adc_cal.a",
+      "sha256": "36de51bcb789367a734fc0bec4ffc1fc375efeb94382a6c420bf239654d6128e",
+      "bytes": 63256,
+      "retained_nonzero_sections": false
+    },
+    {
+      "path": "platformio-packages/framework-arduinoespressif32/tools/sdk/esp32s3/lib/libesp_common.a",
+      "sha256": "aa3b7a5f964bc7c7bfae623e64b15b695db268dd704b1fa7f967dad519f67b5f",
+      "bytes": 57798,
+      "retained_nonzero_sections": true
+    },
+    {
+      "path": "platformio-packages/framework-arduinoespressif32/tools/sdk/esp32s3/lib/libesp_diagnostics.a",
+      "sha256": "69f28fb584e5a44cab0739d53679e78304e45d42ebd76f3e12eb8cf5d973007a",
+      "bytes": 361766,
+      "retained_nonzero_sections": true
+    },
+    {
+      "path": "platformio-packages/framework-arduinoespressif32/tools/sdk/esp32s3/lib/libesp_eth.a",
+      "sha256": "ae4966a227553730bd9ab1bf19bfc5179aa1c13ae09374670c2b831215d9b3d1",
+      "bytes": 812314,
+      "retained_nonzero_sections": true
+    },
+    {
+      "path": "platformio-packages/framework-arduinoespressif32/tools/sdk/esp32s3/lib/libesp_event.a",
+      "sha256": "32b0bdae4f59c6f09fab85c221cd459b4a44567ca4ad753807f9f7172eac70b2",
+      "bytes": 268676,
+      "retained_nonzero_sections": true
+    },
+    {
+      "path": "platformio-packages/framework-arduinoespressif32/tools/sdk/esp32s3/lib/libesp_ipc.a",
+      "sha256": "2bdbbe5e2669143738b2bbd89203eda25476960b5d4f6ce15c512513ae36fcc5",
+      "bytes": 90608,
+      "retained_nonzero_sections": true
+    },
+    {
+      "path": "platformio-packages/framework-arduinoespressif32/tools/sdk/esp32s3/lib/libesp_netif.a",
+      "sha256": "0d67fa2f45582ae11364fce8237146c9db9ead20cf5bf19cb15cd47d93a9c4de",
+      "bytes": 445516,
+      "retained_nonzero_sections": true
+    },
+    {
+      "path": "platformio-packages/framework-arduinoespressif32/tools/sdk/esp32s3/lib/libesp_phy.a",
+      "sha256": "b63a6ce02ad6490c3351964f2d901c2d468f3865a7d64187a287ae66eba7b3e1",
+      "bytes": 151588,
+      "retained_nonzero_sections": true
+    },
+    {
+      "path": "platformio-packages/framework-arduinoespressif32/tools/sdk/esp32s3/lib/libesp_pm.a",
+      "sha256": "60529aeaf1cd94b41983383ceec240d1f43256f86faf8d9357f9e7d6050d9191",
+      "bytes": 171180,
+      "retained_nonzero_sections": true
+    },
+    {
+      "path": "platformio-packages/framework-arduinoespressif32/tools/sdk/esp32s3/lib/libesp_ringbuf.a",
+      "sha256": "71dedf0f14aa64031c973b73279a88f9c4ec83ccfef331fe01e3532183cafc8c",
+      "bytes": 154618,
+      "retained_nonzero_sections": true
+    },
+    {
+      "path": "platformio-packages/framework-arduinoespressif32/tools/sdk/esp32s3/lib/libesp_rom.a",
+      "sha256": "fd3ad8b4552687a2722288fdf8069e43ab01440196dbf3cd6c77cb994be2fbd6",
+      "bytes": 113716,
+      "retained_nonzero_sections": true
+    },
+    {
+      "path": "platformio-packages/framework-arduinoespressif32/tools/sdk/esp32s3/lib/libesp_timer.a",
+      "sha256": "b09bd4231f011c0dc6f09900aa05f6df48f237d34b78965c746f777f5e9fc7bc",
+      "bytes": 176508,
+      "retained_nonzero_sections": true
+    },
+    {
+      "path": "platformio-packages/framework-arduinoespressif32/tools/sdk/esp32s3/lib/libesp_wifi.a",
+      "sha256": "cb06edb694b149bed9b9691be7942281549868e5e59624036da4ccaeb7d72175",
+      "bytes": 468002,
+      "retained_nonzero_sections": true
+    },
+    {
+      "path": "platformio-packages/framework-arduinoespressif32/tools/sdk/esp32s3/lib/libespcoredump.a",
+      "sha256": "8f8b9e9d1e7853232b113cff78c0e62f8939fc4026abd190512134d985695392",
+      "bytes": 478456,
+      "retained_nonzero_sections": true
+    },
+    {
+      "path": "platformio-packages/framework-arduinoespressif32/tools/sdk/esp32s3/lib/libhal.a",
+      "sha256": "ba8f1f141062b0b567029d0bf21ed4981426870f8ae2d33ba1bfd91d32bf5fc7",
+      "bytes": 2792896,
+      "retained_nonzero_sections": true
+    },
+    {
+      "path": "platformio-packages/framework-arduinoespressif32/tools/sdk/esp32s3/lib/libheap.a",
+      "sha256": "8108f23266178230dc27c03ac62b538a990a2a90d638503e3a1f3c482ea41513",
+      "bytes": 557948,
+      "retained_nonzero_sections": true
+    },
+    {
+      "path": "platformio-packages/framework-arduinoespressif32/tools/sdk/esp32s3/lib/libjson.a",
+      "sha256": "04a1df04bb1e0dce3326f511ed68f317081e08caf4f094d6cb4eab172119e2f6",
+      "bytes": 364144,
+      "retained_nonzero_sections": true
+    },
+    {
+      "path": "platformio-packages/framework-arduinoespressif32/tools/sdk/esp32s3/lib/liblog.a",
+      "sha256": "6ebbc908c98f6dca8a03533e95877d217b21a8a7777bfe0cded98dc228f4a2fc",
+      "bytes": 94876,
+      "retained_nonzero_sections": true
+    },
+    {
+      "path": "platformio-packages/framework-arduinoespressif32/tools/sdk/esp32s3/lib/liblwip.a",
+      "sha256": "8d9f1c6ef5abcf086759e3032938ef8df2c06125c0735242a0a079d277ef593d",
+      "bytes": 4288608,
+      "retained_nonzero_sections": true
+    },
+    {
+      "path": "platformio-packages/framework-arduinoespressif32/tools/sdk/esp32s3/lib/libmbedcrypto.a",
+      "sha256": "abdaf759ee17aa697468427b55a86c6c0082ac4cdeb643a63d8b3ac2df324633",
+      "bytes": 4302698,
+      "retained_nonzero_sections": true
+    },
+    {
+      "path": "platformio-packages/framework-arduinoespressif32/tools/sdk/esp32s3/lib/libmbedtls_2.a",
+      "sha256": "9a580d2ff7c885e1bf59479a14422e3d10a485ae9083acb5db943df714c0ac35",
+      "bytes": 1252150,
+      "retained_nonzero_sections": false
+    },
+    {
+      "path": "platformio-packages/framework-arduinoespressif32/tools/sdk/esp32s3/lib/libmbedx509.a",
+      "sha256": "3d56277224b066118b6c48a973ae18fdf8078448bf54b482ac5557699e52f223",
+      "bytes": 676590,
+      "retained_nonzero_sections": false
+    },
+    {
+      "path": "platformio-packages/framework-arduinoespressif32/tools/sdk/esp32s3/lib/libmesh.a",
+      "sha256": "48a17163c2234af955f7d93f21ad219baf11c1353ecb41ca36323db34e3164a6",
+      "bytes": 971720,
+      "retained_nonzero_sections": false
+    },
+    {
+      "path": "platformio-packages/framework-arduinoespressif32/tools/sdk/esp32s3/lib/libnet80211.a",
+      "sha256": "6aae206c85e9009a24cd1f28ce535e2a2d578d9687fe2dc77d4697d45ebc8d0f",
+      "bytes": 1150738,
+      "retained_nonzero_sections": true
+    },
+    {
+      "path": "platformio-packages/framework-arduinoespressif32/tools/sdk/esp32s3/lib/libnewlib.a",
+      "sha256": "dbac7546c93c387a82f3a83cf6985468ad0c26177c391251bde37dac7725511f",
+      "bytes": 428740,
+      "retained_nonzero_sections": true
+    },
+    {
+      "path": "platformio-packages/framework-arduinoespressif32/tools/sdk/esp32s3/lib/libnvs_flash.a",
+      "sha256": "f4163a6e3bb66867d06c5e7f33226f1941f123b77f358cc02e30021b1a2bf983",
+      "bytes": 1455040,
+      "retained_nonzero_sections": true
+    },
+    {
+      "path": "platformio-packages/framework-arduinoespressif32/tools/sdk/esp32s3/lib/libpp.a",
+      "sha256": "369fa64aefd5d147062fd11288f3933b192dc5d9adfbefcafdd94ae9ac9de32e",
+      "bytes": 601344,
+      "retained_nonzero_sections": true
+    },
+    {
+      "path": "platformio-packages/framework-arduinoespressif32/tools/sdk/esp32s3/lib/libprotobuf-c.a",
+      "sha256": "572cd13dc4da5164bd18f1591e3c94731148566ddc0de98aa6c90132f493bacd",
+      "bytes": 279264,
+      "retained_nonzero_sections": false
+    },
+    {
+      "path": "platformio-packages/framework-arduinoespressif32/tools/sdk/esp32s3/lib/libprotocomm.a",
+      "sha256": "3858c1b234129522a6bbbbdb07537fa0d6b619ef44725d290beedef238b79eb3",
+      "bytes": 605970,
+      "retained_nonzero_sections": true
+    },
+    {
+      "path": "platformio-packages/framework-arduinoespressif32/tools/sdk/esp32s3/lib/libpthread.a",
+      "sha256": "c99c47275fdf44c290e154b83b16cc0a62427a82d2875409e0eafe2945088ab1",
+      "bytes": 225166,
+      "retained_nonzero_sections": true
+    },
+    {
+      "path": "platformio-packages/framework-arduinoespressif32/tools/sdk/esp32s3/lib/libsmartconfig.a",
+      "sha256": "abd9da8b00c3440452c0386f3cee1a16886d9ece3bbecc7cf7e8eea2b94a355c",
+      "bytes": 186040,
+      "retained_nonzero_sections": true
+    },
+    {
+      "path": "platformio-packages/framework-arduinoespressif32/tools/sdk/esp32s3/lib/libsoc.a",
+      "sha256": "a484ab659effaaecbd5fe75d20d4ef293e1a54de5034f10add071d597c7fae45",
+      "bytes": 604598,
+      "retained_nonzero_sections": true
+    },
+    {
+      "path": "platformio-packages/framework-arduinoespressif32/tools/sdk/esp32s3/lib/libspiffs.a",
+      "sha256": "1df938532105275f2a9e90984e1d8d6b22a3914a8112d78750722b1e0255c904",
+      "bytes": 764324,
+      "retained_nonzero_sections": true
+    },
+    {
+      "path": "platformio-packages/framework-arduinoespressif32/tools/sdk/esp32s3/lib/libtcpip_adapter.a",
+      "sha256": "624b198973b01d0df08d758fd1911ab221f006650f40e46c955c8e394fa2c09a",
+      "bytes": 105660,
+      "retained_nonzero_sections": true
+    },
+    {
+      "path": "platformio-packages/framework-arduinoespressif32/tools/sdk/esp32s3/lib/libvfs.a",
+      "sha256": "b70865ab418f4f4cc516e234e0011e975164f70b3282df197fd325b061308ed9",
+      "bytes": 639414,
+      "retained_nonzero_sections": true
+    },
+    {
+      "path": "platformio-packages/framework-arduinoespressif32/tools/sdk/esp32s3/lib/libwifi_provisioning.a",
+      "sha256": "ee55767957e3bb116f670f1ba0a46f0ceadc4c5292884dcc6f7c5ab63c08f7e9",
+      "bytes": 808520,
+      "retained_nonzero_sections": true
+    },
+    {
+      "path": "platformio-packages/framework-arduinoespressif32/tools/sdk/esp32s3/lib/libwpa_supplicant.a",
+      "sha256": "fdef973bbfa85c926c5a8266c34cfe0f4aab83d6a835522b24356afe31f52b31",
+      "bytes": 4858426,
+      "retained_nonzero_sections": true
+    },
+    {
+      "path": "platformio-packages/framework-arduinoespressif32/tools/sdk/esp32s3/lib/libxt_hal.a",
+      "sha256": "4823e6c657199a6726f3163f15e1222edb85a8a33eeaafd2aad0cc06150cc4ec",
+      "bytes": 240506,
+      "retained_nonzero_sections": false
+    },
+    {
+      "path": "platformio-packages/framework-arduinoespressif32/tools/sdk/esp32s3/lib/libxtensa.a",
+      "sha256": "42eda0b774a63e71e4b3b4ea983aa2a45374779eae270786272d93cfc30f1293",
+      "bytes": 52616,
+      "retained_nonzero_sections": true
+    },
+    {
+      "path": "platformio-packages/framework-arduinoespressif32/tools/sdk/esp32s3/qio_opi/libbootloader_support.a",
+      "sha256": "569a073995d954de64877037de9f211c9f711d3bbe4755b316f8bcf6aab3fc6d",
+      "bytes": 769328,
+      "retained_nonzero_sections": true
+    },
+    {
+      "path": "platformio-packages/framework-arduinoespressif32/tools/sdk/esp32s3/qio_opi/libesp_hw_support.a",
+      "sha256": "a350af1d93e08a84d7b48dffc48e10cd39a884953b60f349951aed0b0a43f3e8",
+      "bytes": 1830016,
+      "retained_nonzero_sections": true
+    },
+    {
+      "path": "platformio-packages/framework-arduinoespressif32/tools/sdk/esp32s3/qio_opi/libesp_system.a",
+      "sha256": "e618e0fc82ba95afd3d556cd9d76e8e4c2e3159f257947a7810ff7076afd92bb",
+      "bytes": 1577406,
+      "retained_nonzero_sections": true
+    },
+    {
+      "path": "platformio-packages/framework-arduinoespressif32/tools/sdk/esp32s3/qio_opi/libfreertos.a",
+      "sha256": "258c4cc7c1d878cfb2a0a5a76344e4b4e8db326da95b4471f99430c8557c82f8",
+      "bytes": 1063058,
+      "retained_nonzero_sections": true
+    },
+    {
+      "path": "platformio-packages/framework-arduinoespressif32/tools/sdk/esp32s3/qio_opi/libspi_flash.a",
+      "sha256": "5a03c3a60664351698feaa706dd690a3894ff01f714443a3cdb2950e4f8cf623",
+      "bytes": 1504232,
+      "retained_nonzero_sections": true
+    },
+    {
+      "path": "platformio-packages/toolchain-xtensa-esp32s3@8.4.0+2021r2-patch5/bin/../lib/gcc/xtensa-esp32s3-elf/8.4.0/../../../../xtensa-esp32s3-elf/lib/no-rtti/libc.a",
+      "sha256": "b8b1e4a6c23f42c32bbf48dbc50b35cbd8e7d62afdcbb497096280b2c6826d58",
+      "bytes": 10897852,
+      "retained_nonzero_sections": true
+    },
+    {
+      "path": "platformio-packages/toolchain-xtensa-esp32s3@8.4.0+2021r2-patch5/bin/../lib/gcc/xtensa-esp32s3-elf/8.4.0/../../../../xtensa-esp32s3-elf/lib/no-rtti/libm.a",
+      "sha256": "64ced61f0cb9cd94f60f6a2bf307284e6e6a1de0dd99a4e18c579dd645dba178",
+      "bytes": 4642848,
+      "retained_nonzero_sections": true
+    },
+    {
+      "path": "platformio-packages/toolchain-xtensa-esp32s3@8.4.0+2021r2-patch5/bin/../lib/gcc/xtensa-esp32s3-elf/8.4.0/../../../../xtensa-esp32s3-elf/lib/no-rtti/libstdc++.a",
+      "sha256": "46cbd877255439cee2b048b42b1fda0612e54180d88ede86f489e61a5cec103c",
+      "bytes": 20592856,
+      "retained_nonzero_sections": true
+    },
+    {
+      "path": "platformio-packages/toolchain-xtensa-esp32s3@8.4.0+2021r2-patch5/bin/../lib/gcc/xtensa-esp32s3-elf/8.4.0/no-rtti/libgcc.a",
+      "sha256": "c07c00fdc56ce449f8051f3bbaa4e5b870e7dea7bf433b67609e0d06edaa6150",
+      "bytes": 1172470,
+      "retained_nonzero_sections": false
+    }
+  ],
+  "note": "Archive selection is conservative. retained_nonzero_sections means positive nonzero allocated contributions found in the link map; false does not waive source/package notices. ArduinoJson and minimp3 are header-compiled in application objects. SDK and toolchain notices remain separate."
+}

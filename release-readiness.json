@@ -1,0 +1,18 @@
+{
+  "music_redistribution": {
+    "approved": true,
+    "evidence": "Public source has no commercial recording or legacy audio arrays; source exports exclude private/build directories and allow only hash-verified synthetic audio fixtures. Public builds force silent audio. This approval is for song exclusion, not redistribution rights for private recordings."
+  },
+  "dependency_distribution": {
+    "approved": false,
+    "evidence": "Linked archive audit and hashed dependency/source snapshot completed; exact framework package pinned and missing notices added. Pending GPL treatment of binary-only Espressif radio/PHY libraries and final matching-source distribution review; see docs/DEPENDENCY_AUDIT.md."
+  },
+  "asset_provenance": {
+    "approved": true,
+    "evidence": "SOLOMINER confirmed ownership and authorized retaining the supplied artwork in the public GPLv3 project on 2026-10-20. Font and third-party notices are retained. This record documents the owner authorization, not an independent rights determination."
+  },
+  "hardware_acceptance": {
+    "approved": false,
+    "evidence": "Pending physical-device acceptance against the final release commit and firmware hash."
+  }
+}
