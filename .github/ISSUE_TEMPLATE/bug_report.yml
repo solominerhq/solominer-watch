@@ -1,0 +1,32 @@
+name: Firmware bug
+description: Report a problem with SoloMiner Watch firmware.
+body:
+  - type: markdown
+    attributes:
+      value: "For vulnerabilities, follow SECURITY.md. Remove Wi-Fi names, passwords, wallet addresses and other personal data from logs."
+  - type: input
+    id: version
+    attributes:
+      label: Firmware version
+      placeholder: v3.0.0 and source commit, if built locally
+    validations:
+      required: true
+  - type: input
+    id: hardware
+    attributes:
+      label: Board and power state
+      placeholder: Waveshare ESP32-S3-Touch-AMOLED-2.06, battery/USB, Saver On/Off
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: What happened?
+      description: Steps to reproduce, expected behavior, and actual behavior.
+    validations:
+      required: true
+  - type: textarea
+    id: diagnostics
+    attributes:
+      label: Additional details
+      description: Sanitized logs, photos, phone OS or router details. Do not attach your full saved configuration.

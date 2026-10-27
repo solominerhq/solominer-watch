@@ -1,0 +1,15 @@
+# SoloMiner V2 - 32MB Flash OTA Partition Table
+# Two 6.5MB app slots for OTA updates, 20KB NVS, 8KB OTA data
+# Plenty of room for firmware growth (current firmware ~3MB)
+# coredump (64KB) at 0x1000000 captures a crash backtrace to flash so a field
+#   panic can be extracted later (espcoredump.py / pio) instead of being lost.
+#   Placed in the previously-unused upper half of the 32MB flash, so NO existing
+#   partition offset changes (SPIFFS config + OTA layout stay intact).
+# Name,     Type, SubType, Offset,    Size,     Flags
+nvs,         data, nvs,      0x9000,   0x5000,
+otadata,     data, ota,      0xe000,   0x2000,
+app0,        app,  ota_0,    0x10000,  0x680000,
+app1,        app,  ota_1,    0x690000, 0x680000,
+spiffs,      data, spiffs,   0xD10000, 0x100000,
+nvs_data,    data, nvs,      0xE10000, 0x1F0000,
+coredump,    data, coredump, 0x1000000, 0x10000,

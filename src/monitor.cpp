@@ -1,0 +1,255 @@
+#include <atomic>
+#include "ui/hashrate_sample.h"
+#include "network/wifi_connection.h"
+#include "device/mining_control.h"
+#include "device/device_power.h"
+#include <Arduino.h>
+#include <WiFi.h>
+#include <NTPClient.h>
+#include <WiFiUdp.h>
+#include <list>
+#include "mining.h"
+#include "utils.h"
+#include "monitor.h"
+#include "seriallog.h"
+#include "drivers/storage/storage.h"
+#include "drivers/devices/device.h"
+
+extern uint32_t templates;
+extern volatile uint32_t hashes;
+extern uint32_t Mhashes;
+extern uint32_t totalKHashes;
+extern uint32_t elapsedKHs;
+extern uint64_t upTime;
+
+extern uint32_t shares; // increase if blockhash has 32 bits of zeroes
+extern uint32_t valids; // increased if blockhash <= targethalfshares
+
+extern double best_diff; // track best diff
+
+extern monitor_data mMonitor;
+
+//from saved config
+extern TSettings Settings; 
+bool invertColors = false;
+
+WiFiUDP ntpUDP;
+NTPClient timeClient(ntpUDP, "europe.pool.ntp.org", 0, 60000);
+String poolAPIUrl;
+
+// Apply the stored POSIX TZ string to the C library. After this, localtime()/
+// localtime_r() anywhere in the firmware resolve local time WITH DST rules.
+// initialTime and the NTP epoch stay in UTC; only the break-down to wall-clock
+// applies the zone. Idempotent.
+void applyTimezone(void){
+    const char* tz = (Settings.PosixTZ[0] != '\0') ? Settings.PosixTZ : "UTC0";
+    setenv("TZ", tz, 1);
+    tzset();
+    SERIAL_PRINTF("[TZ] POSIX TZ applied: %s\n", tz);
+}
+
+void setup_monitor(void){
+    /******** TIME ZONE SETTING *****/
+
+    // NTPClient stays at UTC (offset 0). The zone + DST are applied by the C
+    // library via applyTimezone() (localtime_r in getTime/getDate below).
+    timeClient.begin();
+    applyTimezone();  // ensure TZ is set even if the early boot call was skipped
+
+    SERIAL_PRINTLN("TimeClient setup done");
+#ifdef SCREEN_WORKERS_ENABLE
+    poolAPIUrl = getPoolAPIUrl();
+    SERIAL_PRINTLN("poolAPIUrl: " + poolAPIUrl);
+#endif
+}
+
+// updateGlobalData() removed — network stats screen no longer exists.
+// Eliminates 2 HTTPS calls every 5 minutes (mempool.space hashrate + fees).
+
+unsigned long mTriggerUpdate = 0;
+unsigned long initialMillis = millis();
+unsigned long initialTime = 0;
+bool ntpHasUpdated = false;  // True only after a real NTP response (not RTC seed)
+
+void getTime(unsigned long* currentHours, unsigned long* currentMinutes, unsigned long* currentSeconds){
+
+  //Check if need an NTP call to check current time
+  // Always try NTP if we haven't gotten a real response yet (RTC seed doesn't count),
+  // then refresh every UPDATE_PERIOD_h hours after that.
+  if(!ntpHasUpdated || (millis() - mTriggerUpdate > UPDATE_PERIOD_h * 60 * 60 * 1000)){
+    if(!device::batterySaverIdle() && WiFi.status() == WL_CONNECTED) {
+        if(timeClient.update() && timeClient.getEpochTime()>=1704067200UL &&
+           timeClient.getEpochTime()<4102444800UL) {
+            mTriggerUpdate = millis();
+            initialTime = timeClient.getEpochTime();
+            ntpHasUpdated = true;
+            SERIAL_PRINT("TimeClient NTPupdateTime ");
+        }
+    }
+  }
+
+  // No time base yet (no NTP, no RTC seed): report midnight rather than a
+  // bogus time.
+  if (initialTime == 0) {
+    *currentHours = 0; *currentMinutes = 0; *currentSeconds = 0;
+    return;
+  }
+
+  // initialTime + elapsed is the current UTC epoch. localtime_r applies the
+  // zone AND daylight-saving rules from the POSIX TZ string (applyTimezone()).
+  unsigned long elapsedTime = (millis() - mTriggerUpdate) / 1000;
+  time_t utc = (time_t)initialTime + (time_t)elapsedTime;
+  struct tm lt;
+  localtime_r(&utc, &lt);
+
+  *currentHours   = lt.tm_hour;
+  *currentMinutes = lt.tm_min;
+  *currentSeconds = lt.tm_sec;
+}
+
+String getDate(){
+
+  // No time base yet — don't render a bogus date.
+  if (initialTime == 0) return String("--/--/----");
+
+  // Current UTC epoch → local date via the zone/DST-aware C library. localtime_r
+  // takes a real time_t (64-bit on this toolchain), so no stack-read hazard.
+  unsigned long elapsedTime = (millis() - mTriggerUpdate) / 1000;
+  time_t utc = (time_t)initialTime + (time_t)elapsedTime;
+  struct tm lt;
+  localtime_r(&utc, &lt);
+
+  char currentDate[20];
+  sprintf(currentDate, "%02d/%02d/%04d", lt.tm_mday, lt.tm_mon + 1, lt.tm_year + 1900);
+
+  return String(currentDate);
+}
+
+String getTime(void){
+  unsigned long currentHours, currentMinutes, currentSeconds;
+  getTime(&currentHours, &currentMinutes, &currentSeconds);
+
+  char LocalHour[10];
+  sprintf(LocalHour, "%02d:%02d", (int)currentHours, (int)currentMinutes);
+
+  String mystring(LocalHour);
+  return LocalHour;
+}
+
+enum EHashRateScale
+{
+  HashRateScale_99KH,
+  HashRateScale_999KH,
+  HashRateScale_9MH
+};
+
+static ui::HashrateSample rateWindow;
+static std::atomic<uint32_t> rateCentiKh{0}, rateGeneration{0}, rateUpdatedAt{0};
+static bool rateEligible() {
+  return !device::batterySaverIdle() && network::wifiStage()==network::WifiStage::Connected &&
+      g_poolPhase.load()==POOL_PHASE_MINING && g_thermalTier.load()<3;
+}
+void updateHashrateSample(uint32_t kh, uint32_t elapsed) {
+  const uint32_t generation=network::successfulConnections();
+  const double rate=rateWindow.update(generation,rateEligible(),kh,elapsed);
+  rateCentiKh.store(static_cast<uint32_t>(rate*100.0+0.5));
+  rateGeneration.store(generation);rateUpdatedAt.store(millis());
+}
+String getCurrentHashRate(unsigned long mElapsed) {
+  (void)mElapsed;
+  if(!rateEligible() || rateGeneration.load()!=network::successfulConnections() ||
+      uint32_t(millis()-rateUpdatedAt.load())>2500) return String("0");
+  return String(rateCentiKh.load()/100.0,2);
+}
+
+mining_data getMiningData(unsigned long mElapsed)
+{
+  mining_data data;
+
+  char best_diff_string[16] = {0};
+  suffix_string(best_diff, best_diff_string, 16, 0);
+
+  char timeMining[15] = {0};
+  uint64_t tm = upTime;
+  int secs = tm % 60;
+  tm /= 60;
+  int mins = tm % 60;
+  tm /= 60;
+  int hours = tm % 24;
+  int days = tm / 24;
+  sprintf(timeMining, "%01d  %02d:%02d:%02d", days, hours, mins, secs);
+
+  data.completedShares = shares;
+  data.totalMHashes = Mhashes;
+  data.totalKHashes = totalKHashes;
+  data.currentHashRate = getCurrentHashRate(mElapsed);
+  data.templates = templates;
+  data.bestDiff = best_diff_string;
+  data.timeMining = timeMining;
+  data.valids = valids;
+  data.temp = String(temperatureRead(), 0);
+  data.currentTime = getTime();
+
+  return data;
+}
+
+clock_data getClockData(unsigned long mElapsed)
+{
+  clock_data data;
+
+  data.completedShares = shares;
+  data.totalKHashes = totalKHashes;
+  data.currentHashRate = getCurrentHashRate(mElapsed);
+  data.btcPrice = "";  // Price fetched by display driver background task
+  data.currentTime = getTime();
+  data.currentDate = getDate();
+
+  return data;
+}
+
+clock_data_t getClockData_t(unsigned long mElapsed)
+{
+  clock_data_t data;
+
+  data.valids = valids;
+  data.currentHashRate = getCurrentHashRate(mElapsed);
+  getTime(&data.currentHours, &data.currentMinutes, &data.currentSeconds);
+
+  return data;
+}
+
+// getCoinData() removed — network stats screen no longer exists.
+
+String getPoolAPIUrl(void) {
+    poolAPIUrl = String(getPublicPool);
+    if (Settings.PoolAddress == "public-pool.io") {
+        poolAPIUrl = "https://public-pool.io:40557/api/client/";
+    } 
+    else {
+        if (Settings.PoolAddress == "pool.nerdminers.org") {
+            poolAPIUrl = "https://pool.nerdminers.org/users/";
+        }
+        else {
+            switch (Settings.PoolPort) {
+                case 3333:
+                    if (Settings.PoolAddress == "pool.sethforprivacy.com")
+                        poolAPIUrl = "https://pool.sethforprivacy.com/api/client/";
+                    if (Settings.PoolAddress == "pool.solomining.de")
+                        poolAPIUrl = "https://pool.solomining.de/api/client/";
+                    // Add more cases for other addresses with port 3333 if needed
+                    break;
+                case 2018:
+                    // Local instance of public-pool.io on Umbrel or Start9
+                    poolAPIUrl = "http://" + Settings.PoolAddress + ":2019/api/client/";
+                    break;
+                default:
+                    poolAPIUrl = String(getPublicPool);
+                    break;
+            }
+        }
+    }
+    return poolAPIUrl;
+}
+
+// getPoolData() removed — pool stats not displayed anywhere.
+// Eliminates 1 HTTPS call every minute (pool API).

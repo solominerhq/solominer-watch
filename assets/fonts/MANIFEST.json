@@ -1,0 +1,198 @@
+{
+  "generator": "lv_font_conv@1.5.3",
+  "font_license": "OFL-1.1",
+  "fonts": {
+    "Inter_28pt-SemiBold.ttf": {
+      "sha256": "cedce7a9bfdea18077a12cda546db5683e7763b7a3a876b75a52c7eef11cecb2",
+      "version": "Version 4.001;git-66647c0bb",
+      "copyright": "Copyright 2016 The Inter Project Authors (https://github.com/rsms/inter)",
+      "license_description": "This Font Software is licensed under the SIL Open Font License, Version 1.1. This license is available with a FAQ at: https://openfontlicense.org"
+    },
+    "Inter_18pt-Regular.ttf": {
+      "sha256": "3e5f90a0138b38de4cf4d779ad78391974ea1df776b9164842bdcbb60ce383c5",
+      "version": "Version 4.001;git-66647c0bb",
+      "copyright": "Copyright 2016 The Inter Project Authors (https://github.com/rsms/inter)",
+      "license_description": "This Font Software is licensed under the SIL Open Font License, Version 1.1. This license is available with a FAQ at: https://openfontlicense.org"
+    },
+    "Inter_28pt-Bold.ttf": {
+      "sha256": "ceec73bdfc78d352bcc222b9ac28e752a20b4a339daefc69bc67f49380425c0c",
+      "version": "Version 4.001;git-66647c0bb",
+      "copyright": "Copyright 2016 The Inter Project Authors (https://github.com/rsms/inter)",
+      "license_description": "This Font Software is licensed under the SIL Open Font License, Version 1.1. This license is available with a FAQ at: https://openfontlicense.org"
+    },
+    "Inter_24pt-Medium.ttf": {
+      "sha256": "fa6b009d7b921ccd070b8d039da23b5663e1a87600a179c0512c347565998ac5",
+      "version": "Version 4.001;git-66647c0bb",
+      "copyright": "Copyright 2016 The Inter Project Authors (https://github.com/rsms/inter)",
+      "license_description": "This Font Software is licensed under the SIL Open Font License, Version 1.1. This license is available with a FAQ at: https://openfontlicense.org"
+    },
+    "Inter_24pt-Regular.ttf": {
+      "sha256": "d2a4911506ea4e124a47ca044e5e79f671ddf8f1a55f1ab9a56c58d088124b63",
+      "version": "Version 4.001;git-66647c0bb",
+      "copyright": "Copyright 2016 The Inter Project Authors (https://github.com/rsms/inter)",
+      "license_description": "This Font Software is licensed under the SIL Open Font License, Version 1.1. This license is available with a FAQ at: https://openfontlicense.org"
+    }
+  },
+  "subsets": [
+    {
+      "output": "src/drivers/displays/inter_108_semi_bold.c",
+      "source": "Inter_28pt-SemiBold.ttf",
+      "size": 108,
+      "range": "32-127,45",
+      "lv_font_name": "inter_108_semi_bold",
+      "change": "original glyphs and metrics reproduced"
+    },
+    {
+      "output": "src/drivers/displays/inter_12.c",
+      "source": "Inter_18pt-Regular.ttf",
+      "size": 12,
+      "range": "32-127",
+      "lv_font_name": "inter_12",
+      "change": "original glyphs and metrics reproduced"
+    },
+    {
+      "output": "src/drivers/displays/inter_120.c",
+      "source": "Inter_28pt-Bold.ttf",
+      "size": 120,
+      "range": "32-127",
+      "lv_font_name": "inter_120",
+      "change": "original glyphs and metrics reproduced"
+    },
+    {
+      "output": "src/drivers/displays/inter_14.c",
+      "source": "Inter_18pt-Regular.ttf",
+      "size": 14,
+      "range": "32-127",
+      "lv_font_name": "inter_14",
+      "change": "original glyphs and metrics reproduced"
+    },
+    {
+      "output": "src/drivers/displays/inter_16.c",
+      "source": "Inter_18pt-Regular.ttf",
+      "size": 16,
+      "range": "32-127",
+      "lv_font_name": "inter_16",
+      "change": "original glyphs and metrics reproduced"
+    },
+    {
+      "output": "src/drivers/displays/inter_20.c",
+      "source": "Inter_24pt-Medium.ttf",
+      "size": 20,
+      "range": "32-127",
+      "lv_font_name": "inter_20",
+      "change": "original glyphs and metrics reproduced"
+    },
+    {
+      "output": "src/drivers/displays/inter_24.c",
+      "source": "Inter_24pt-Medium.ttf",
+      "size": 24,
+      "range": "32-127",
+      "lv_font_name": "inter_24",
+      "change": "original glyphs and metrics reproduced"
+    },
+    {
+      "output": "src/drivers/displays/inter_28.c",
+      "source": "Inter_28pt-Bold.ttf",
+      "size": 28,
+      "range": "32-127",
+      "lv_font_name": "inter_28",
+      "change": "original glyphs and metrics reproduced"
+    },
+    {
+      "output": "src/drivers/displays/inter_28_semi_bold.c",
+      "source": "Inter_28pt-SemiBold.ttf",
+      "size": 28,
+      "range": "32-126",
+      "lv_font_name": "inter_28_semi_bold",
+      "change": "original glyphs and metrics reproduced"
+    },
+    {
+      "output": "src/drivers/displays/inter_36.c",
+      "source": "Inter_24pt-Regular.ttf",
+      "size": 36,
+      "range": "32-127",
+      "lv_font_name": "inter_36",
+      "change": "original glyphs and metrics reproduced"
+    },
+    {
+      "output": "src/drivers/displays/inter_36_bold.c",
+      "source": "Inter_28pt-SemiBold.ttf",
+      "size": 36,
+      "range": "32-127",
+      "lv_font_name": "inter_36_bold",
+      "change": "rebuilt from verified Inter 4.001 source; previous cloud source unavailable"
+    },
+    {
+      "output": "src/drivers/displays/inter_40_bold.c",
+      "source": "Inter_28pt-SemiBold.ttf",
+      "size": 40,
+      "range": "32-127",
+      "lv_font_name": "inter_40_bold",
+      "change": "rebuilt from verified Inter 4.001 source; previous cloud source unavailable"
+    },
+    {
+      "output": "src/drivers/displays/inter_42_bold.c",
+      "source": "Inter_28pt-SemiBold.ttf",
+      "size": 42,
+      "range": "32-127",
+      "lv_font_name": "inter_42_bold",
+      "change": "rebuilt from verified Inter 4.001 source; previous cloud source unavailable"
+    },
+    {
+      "output": "src/drivers/displays/inter_48.c",
+      "source": "Inter_28pt-Bold.ttf",
+      "size": 48,
+      "range": "32-127",
+      "lv_font_name": "inter_48",
+      "change": "original glyphs and metrics reproduced"
+    },
+    {
+      "output": "src/drivers/displays/inter_48_bold.c",
+      "source": "Inter_28pt-SemiBold.ttf",
+      "size": 48,
+      "range": "32-127",
+      "lv_font_name": "inter_48_bold",
+      "change": "original glyphs and metrics reproduced"
+    },
+    {
+      "output": "src/drivers/displays/inter_56.c",
+      "source": "Inter_28pt-Bold.ttf",
+      "size": 56,
+      "range": "32-127",
+      "lv_font_name": "inter_56",
+      "change": "original glyphs and metrics reproduced"
+    },
+    {
+      "output": "src/drivers/displays/inter_64.c",
+      "source": "Inter_28pt-Bold.ttf",
+      "size": 64,
+      "range": "32-127",
+      "lv_font_name": "inter_64",
+      "change": "original glyphs and metrics reproduced"
+    },
+    {
+      "output": "src/drivers/displays/inter_72.c",
+      "source": "Inter_28pt-Bold.ttf",
+      "size": 72,
+      "range": "32-127",
+      "lv_font_name": "inter_72",
+      "change": "original glyphs and metrics reproduced"
+    },
+    {
+      "output": "src/drivers/displays/inter_84.c",
+      "source": "Inter_28pt-Bold.ttf",
+      "size": 84,
+      "range": "32-127",
+      "lv_font_name": "inter_84",
+      "change": "original glyphs and metrics reproduced"
+    },
+    {
+      "output": "src/drivers/displays/inter_96.c",
+      "source": "Inter_28pt-Bold.ttf",
+      "size": 96,
+      "range": "32-127",
+      "lv_font_name": "inter_96",
+      "change": "original glyphs and metrics reproduced"
+    }
+  ]
+}
