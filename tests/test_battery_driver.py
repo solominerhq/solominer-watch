@@ -69,8 +69,6 @@ bool shouldShutdown(int pct, bool absent) {
 }
 #define SERIAL_PRINTF(...) do {} while (false)
 static bool displayManuallyOff = false, displayOff = false, displayAwake = true;
-static bool g_lowBatteryDim = false;
-static const int LOW_BATT_BRIGHTNESS_THRESHOLD = 10;
 void wakeDisplay() {}
 void flushPendingSettings(bool) {}
 void checkpointMiningStats() {}

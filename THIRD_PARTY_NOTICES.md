@@ -22,6 +22,7 @@ and do not replace, the original file-level notices and upstream terms.
 | XPowersLib | 0.2.6 | MIT, `licenses/XPowersLib.txt` |
 | minimp3 | `ea99364f61c14656440e8d77e9c233ccf3124633` | CC0 1.0, `src/third_party/minimp3/LICENSE` and `licenses/minimp3-CC0.txt` |
 | Inter font subsets | 4.001 (`git-66647c0bb`) | Exact TTFs and manifest in `assets/fonts`; original SIL OFL 1.1 notice in `licenses/Inter-OFL.txt` |
+| Lucide celebration icons | Vendored SVGs and generated font | ISC and inherited Feather MIT notices in `src/third_party/lucide/LICENSE` |
 
 The actual linked archives and exact source/dependency snapshot are now recorded
 in [the dependency guide](docs/DEPENDENCIES.md) and its JSON inventory. License

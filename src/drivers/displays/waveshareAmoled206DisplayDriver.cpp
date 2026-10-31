@@ -37,6 +37,7 @@
 #include "version.h"
 #include "monitor.h"
 #include "inter_fonts.h"
+#include "celebration_icons.h"
 #include "qrcode.h"
 #if LV_USE_QRCODE
 #include <src/libs/qrcode/qrcodegen.h>
@@ -419,9 +420,7 @@ SemaphoreHandle_t disp_state_mutex = NULL;
 // Accessed under lvgl_mutex after display initialization.
 static bool splashActive = false;
 static unsigned long splashStartMs = 0;
-static constexpr uint32_t SPLASH_STARS_MS = 250;
-static constexpr uint32_t SPLASH_ASTRONAUT_MS = 1250;
-static constexpr uint32_t SPLASH_MIN_MS = SPLASH_STARS_MS + SPLASH_ASTRONAUT_MS;
+static constexpr uint32_t SPLASH_MIN_MS = 1500;
 
 static int currentScreenIndex = 0;  // Default to Clock (NAV_CLOCK=0) - clock is left, mining is right
 static int lastBuiltScreen = -1;   // Track which screen's LVGL objects are currently built (-1 = none)
@@ -433,7 +432,8 @@ static bool inSetupMode = false;  // Track if we're showing setup screen
 static volatile bool setupRedrawRequested = false;  // Set by toggle, drawn by dispatcher
 
 // Charging boot mode — when device powers on via USB (not PWR button press),
-// show a charging screen instead of fully booting. BOOT press starts the watch.
+// show a charging screen instead of fully booting. Lower/PWR starts the watch;
+// upper/BOOT wakes the charging display without starting normal operation.
 volatile bool chargingBootMode = false;
 static ui::SetupShortcut setupShortcut;
 static std::atomic<bool> setupButtonsConsumed{false};
@@ -479,14 +479,19 @@ void triggerImmediateRedraw(void) {
     needsImmediateRedraw.store(true);
 }
 
-// Force full LVGL object rebuild on next screen draw.
-// Called when switching screens, exiting setup mode, etc.
-void invalidateScreen(void) {
-    inputRevision.fetch_add(1);
+// Reset cached page state without interrupting persistent overlay controls.
+static void resetScreenBuildState() {
     settingsView = ui::SettingsView::List;
     setupReturnScreen = 3;
     settingsTappedAction = static_cast<int>(ui::PageAction::None);
     lastBuiltScreen = -1;
+}
+
+// Force full LVGL object rebuild on next screen draw.
+// Called when switching screens, exiting setup mode, etc.
+void invalidateScreen(void) {
+    inputRevision.fetch_add(1);
+    resetScreenBuildState();
 }
 
 // =============================================================================
@@ -605,6 +610,15 @@ static void clearPage() {
     lv_obj_set_style_bg_color(lv_scr_act(), THEME_BG_PRIMARY, 0);
     lv_obj_set_style_bg_opa(lv_scr_act(), LV_OPA_COVER, 0);
 }
+static void buildPowerOffScreen(bool buttonHeld) {
+    clearPage();
+    // This firmware font includes ASCII, so use three dots rather than U+2026.
+    auto* message = pageText("Powering off...", &inter_36, THEME_TEXT_WHITE, 0);
+    if (message) lv_obj_center(message);
+    if (buttonHeld)
+        pageText("Release the button", &inter_24, THEME_TEXT_MUTED, 310);
+}
+
 static void pageMessage(const char* title, const char* detail, bool warning = false) {
     clearPage();
     pageText(title, &inter_36_bold, warning ? lv_color_hex(0xF97316) : THEME_TEXT_WHITE, 128);
@@ -746,14 +760,25 @@ static void buildDemoControls() {
     lv_obj_clear_flag(demoControls, static_cast<lv_obj_flag_t>(LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_CLICKABLE));
     auto* pill=lv_obj_create(demoControls);
     demoDotsBackground=pill;
-    const int dotsY = HEIGHT - SAFE_BOTTOM + 4; // Same baseline as createPageDots.
-    lv_obj_remove_style_all(pill);lv_obj_set_pos(pill,148,dotsY-5);lv_obj_set_size(pill,114,28);
-    lv_obj_set_style_radius(pill,14,0);lv_obj_set_style_bg_color(pill,lv_color_hex(0x080A0C),0);
-    lv_obj_set_style_bg_opa(pill,238,0);
-    lv_obj_clear_flag(pill,static_cast<lv_obj_flag_t>(LV_OBJ_FLAG_SCROLLABLE|LV_OBJ_FLAG_CLICKABLE));
+    // Preserve the main UI dot size, with comfortable padding on its own backing.
+    constexpr int dotSize = 18, dotGap = 14, pillWidth = 122, pillHeight = 38;
+    constexpr int footerCenterY = ui::demoMute.y + ui::demoMute.height / 2;
+    const int dotsY = footerCenterY - dotSize / 2;
+    const int dotsX = (WIDTH - (3 * dotSize + 2 * dotGap)) / 2;
+    if (pill) {
+        lv_obj_remove_style_all(pill);
+        lv_obj_set_pos(pill,(WIDTH-pillWidth)/2,footerCenterY-pillHeight/2);
+        lv_obj_set_size(pill,pillWidth,pillHeight);
+        lv_obj_set_style_radius(pill,pillHeight/2,0);
+        lv_obj_set_style_bg_color(pill,lv_color_hex(0x0A0B0D),0);
+        lv_obj_set_style_bg_opa(pill,242,0);
+        lv_obj_clear_flag(pill,static_cast<lv_obj_flag_t>(LV_OBJ_FLAG_SCROLLABLE|LV_OBJ_FLAG_CLICKABLE));
+    }
     for(int i=0;i<3;++i){
-        auto* dot=lv_obj_create(demoControls);demoDots[i]=dot;lv_obj_remove_style_all(dot);
-        lv_obj_set_pos(dot,163+i*33,dotsY);lv_obj_set_size(dot,18,18);lv_obj_set_style_radius(dot,9,0);
+        auto* dot=lv_obj_create(demoControls);demoDots[i]=dot;
+        if (!dot) continue;
+        lv_obj_remove_style_all(dot);
+        lv_obj_set_pos(dot,dotsX+i*(dotSize+dotGap),dotsY);lv_obj_set_size(dot,dotSize,dotSize);lv_obj_set_style_radius(dot,LV_RADIUS_CIRCLE,0);
         lv_obj_set_style_bg_opa(dot,255,0);
         lv_obj_clear_flag(dot,static_cast<lv_obj_flag_t>(LV_OBJ_FLAG_SCROLLABLE|LV_OBJ_FLAG_CLICKABLE));
     }
@@ -763,18 +788,21 @@ static void buildDemoControls() {
         auto* button = lv_obj_create(demoControls);
         if (!button) continue;
         lv_obj_remove_style_all(button);
-        lv_obj_set_pos(button, bounds.x, bounds.y);
-        lv_obj_set_size(button, bounds.width, bounds.height);
-        lv_obj_set_style_radius(button, bounds.width / 2, 0);
-        lv_obj_set_style_bg_color(button, lv_color_hex(0x080A0C), 0);
-        lv_obj_set_style_bg_opa(button, 238, 0);
+        // Only the backing shrinks; the hit region remains forgiving.
+        constexpr int buttonSize = 54;
+        lv_obj_set_pos(button, bounds.x + (bounds.width-buttonSize)/2,
+                      bounds.y + (bounds.height-buttonSize)/2);
+        lv_obj_set_size(button, buttonSize, buttonSize);
+        lv_obj_set_style_radius(button, buttonSize/2, 0);
+        lv_obj_set_style_bg_color(button, lv_color_hex(0x0A0B0D), 0);
+        lv_obj_set_style_bg_opa(button, 242, 0);
         lv_obj_set_style_border_color(button, lv_color_hex(0x45474D), 0);
         lv_obj_set_style_border_width(button, 0, 0);
         lv_obj_clear_flag(button, static_cast<lv_obj_flag_t>(LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_CLICKABLE));
         auto* label = lv_label_create(button);
-        if (!label) continue;
+        if (!label) { lv_obj_delete(button); continue; }
         lv_label_set_text(label, i == 0 ? (audioBlockFoundMuted() ? LV_SYMBOL_MUTE : LV_SYMBOL_VOLUME_MAX) : LV_SYMBOL_CLOSE);
-        lv_obj_set_style_text_font(label, &lv_font_montserrat_28, 0);
+        lv_obj_set_style_text_font(label, &celebration_icons, 0);
         lv_obj_set_style_text_color(label, THEME_TEXT_WHITE, 0);
         lv_obj_center(label);
         registerTouchTarget(button,bounds);
@@ -827,7 +855,8 @@ static void renderSimCountdown() {
     if(remaining<=0){beginSimulationPlayback();return;}
     if(!simCountdownLabel){
         clearPage();invalidateScreen();
-        pageText("BLOCK FOUND DEMO", &inter_28, THEME_TEXT_WHITE, 108);
+        pageText("BLOCK FOUND", &inter_36_bold, THEME_TEXT_WHITE, 78);
+        pageText("DEMO", &inter_28, THEME_TEXT_WHITE, 126);
         simCountdownLabel=pageText("", &inter_120, THEME_TEXT_WHITE, 177);
         auto* cancel = pageAction(ui::bottomAction, "Cancel");
         if (cancel) lv_obj_set_style_radius(cancel, 18, 0);
@@ -956,9 +985,17 @@ static uint32_t celebrationHeadingColor() {
         celebrationHasPlayback && audioIsPlaying() && !celebrationFallbackClock);
 }
 
+// Alternate the reward heading against YOUR BLOCK, using the same sampled beat.
+// Finished music and saved records retain the steady orange headings.
+static uint32_t rewardHeadingColor(uint32_t primaryColor) {
+    if (!celebrationHasPlayback || !audioIsPlaying() || celebrationFallbackClock)
+        return ui::block_found::headingOrange;
+    return primaryColor == 0xFFFFFF ? ui::block_found::headingOrange : 0xFFFFFF;
+}
+
 static void updateDemoControls() {
     const bool visible=!simCountdownActive && (!showingLandingSeq ||
-        ui::block_found::navigationReady(celebrationElapsedMs()));
+        ui::block_found::pageDotsReady(celebrationElapsedMs()));
     if(demoDotsBackground){
         if(visible)lv_obj_clear_flag(demoDotsBackground,LV_OBJ_FLAG_HIDDEN);
         else lv_obj_add_flag(demoDotsBackground,LV_OBJ_FLAG_HIDDEN);
@@ -994,6 +1031,8 @@ static void landingDoneCb() {
     blockFoundAnimStart = millis();
 }
 
+static void syncInputContext();
+
 static void renderLandingSequence() {
     if (!lv_scr_act() || landingBuilt || audioIsPlaying()) return; // Let an exited track finish stopping before replay.
     landingBuilt = true;
@@ -1002,16 +1041,20 @@ static void renderLandingSequence() {
     celebrationStartTick = lv_tick_get();
     g_landingImg = block_found_scene::create(lv_scr_act(),celebrationElapsedMs,true,landingDoneCb,false,celebrationHeadingColor);
     if (!g_landingImg) landingDoneCb();
-    else lv_refr_now(NULL);
+    // Show and register mute/close in the very first frame, before audio starts.
+    // Publish this input context before flushing: a contact begun while that
+    // frame is appearing must not be discarded by the end-of-draw context sync.
+    buildDemoControls();
+    syncInputContext();
+    lv_refr_now(NULL);
     celebrationStartTick = lv_tick_get();
     audioPlayBlockFound();
     celebrationClockArmed = true;
-    buildDemoControls();
 }
 
 static void renderBlockFoundHouston() {
     if (!lv_scr_act() || houstonBuilt) return;
-    clearPage(); invalidateScreen();
+    clearPage(); resetScreenBuildState();
     houstonBuilt = block_found_scene::create(lv_scr_act(),celebrationHasPlayback ? celebrationElapsedMs : []()->uint32_t{return ui::block_found::detailsMs;},false,nullptr,false,celebrationHeadingColor) != nullptr;
 }
 
@@ -1035,19 +1078,22 @@ struct RewardHeadingAnimation {
     lv_obj_t* second;
     lv_timer_t* timer;
     uint32_t color;
+    uint32_t secondColor;
 };
 static void animateRewardHeadings(lv_obj_t* card,lv_obj_t* first,lv_obj_t* second=nullptr) {
     if (!celebrationHasPlayback) return;
-    auto* state=new(std::nothrow)RewardHeadingAnimation{first,second,nullptr,celebrationHeadingColor()};
+    const uint32_t initialColor=celebrationHeadingColor();
+    auto* state=new(std::nothrow)RewardHeadingAnimation{first,second,nullptr,initialColor,rewardHeadingColor(initialColor)};
     if (!state) return;
     state->timer=lv_timer_create([](lv_timer_t* timer){
         auto* s=static_cast<RewardHeadingAnimation*>(lv_timer_get_user_data(timer));
         const uint32_t color=celebrationHeadingColor();
+        const uint32_t secondColor=rewardHeadingColor(color);
         if(!audioIsPlaying())lv_timer_pause(timer);
-        if(color==s->color)return;
-        s->color=color;
-        for(auto* title:{s->first,s->second})
-            if(title)lv_obj_set_style_text_color(title,lv_color_hex(color),0);
+        if(color==s->color && secondColor==s->secondColor)return;
+        s->color=color;s->secondColor=secondColor;
+        if(s->first)lv_obj_set_style_text_color(s->first,lv_color_hex(color),0);
+        if(s->second)lv_obj_set_style_text_color(s->second,lv_color_hex(secondColor),0);
     },50,state);
     if (!state->timer) { delete state;return; }
     lv_obj_add_event_cb(card,[](lv_event_t* event){
@@ -1071,7 +1117,7 @@ static bool rewardQr(lv_obj_t* card,const char* hash) {
 }
 static void renderRewardCertificate(bool haveData,uint32_t height,uint64_t reward,const char* hash) {
     if (!lv_scr_act() || certBuilt) return;
-    clearPage(); invalidateScreen();
+    clearPage(); resetScreenBuildState();
     lv_obj_t* card=lv_obj_create(lv_scr_act());
     if (!card) return;
     certBuilt=true;
@@ -1081,7 +1127,8 @@ static void renderRewardCertificate(bool haveData,uint32_t height,uint64_t rewar
     lv_obj_clear_flag(card,static_cast<lv_obj_flag_t>(LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_CLICKABLE));
     clock_stars::create(card);
     if (celebrationPage==1) {
-        auto* blockTitle=rewardText(card,"YOUR BLOCK",&inter_42_bold,celebrationHeadingColor(),108);
+        const uint32_t headingColor=celebrationHeadingColor();
+        auto* blockTitle=rewardText(card,"YOUR BLOCK",&inter_42_bold,headingColor,108);
         if(blockTitle)lv_obj_set_style_text_letter_space(blockTitle,-1,0);
         char number[32];
         if(haveData && height) formatWithCommas(height,number,sizeof(number));
@@ -1102,7 +1149,7 @@ static void renderRewardCertificate(bool haveData,uint32_t height,uint64_t rewar
             }
         }
         rewardText(card,number,haveData && height ? valueFont : &inter_28,0xFFFFFF,190);
-        auto* rewardTitle=rewardText(card,"BLOCK REWARD",&inter_42_bold,celebrationHeadingColor(),272);
+        auto* rewardTitle=rewardText(card,"BLOCK REWARD",&inter_42_bold,rewardHeadingColor(headingColor),272);
         if(rewardTitle)lv_obj_set_style_text_letter_space(rewardTitle,-1,0);
         if (haveData && reward) {
             const lv_font_t* font=valueFont;
@@ -1122,7 +1169,7 @@ static void renderRewardCertificate(bool haveData,uint32_t height,uint64_t rewar
         } else rewardText(card,"Unavailable",&inter_36,0xFFFFFF,352);
         animateRewardHeadings(card,blockTitle,rewardTitle);
     } else {
-        auto* title=rewardText(card,"SEE YOUR BLOCK",&inter_42_bold,celebrationHeadingColor(),90);
+        auto* title=rewardText(card,"VIEW BLOCK",&inter_42_bold,celebrationHeadingColor(),90);
         if(title)lv_obj_set_style_text_letter_space(title,-1,0);
         if(!(haveData && rewardQr(card,hash)))
             rewardText(card,"Check your pool\nfor block details",&inter_28,0xC6CED8,270);
@@ -1143,7 +1190,9 @@ static void renderCertificate() {
 
 static void advanceCelebrationPage(bool forward) {
     if (!(showingLandingSeq || showingBlockFoundScreen)) return;
-    if (showingLandingSeq && !ui::block_found::navigationReady(celebrationElapsedMs())) return;
+    // Navigation is available from the first rendered frame. Only wait for
+    // this run's initialization, never for a pose, beat or audio position.
+    if (showingLandingSeq && !celebrationClockArmed) return;
     celebrationTour.manual=true;
     showingLandingSeq=false;landingBuilt=false;showingBlockFoundScreen=true;
     celebrationPage=ui::block_found::nextPage(celebrationPage,forward);
@@ -1157,10 +1206,14 @@ static void advanceCelebrationPage(bool forward) {
 // GESTURE HANDLER
 // =============================================================================
 
-// Called only under lvgl_mutex. Changes invalidate contacts and queued actions.
+// Called only under lvgl_mutex. Leaving an interaction context invalidates
+// contacts and queued actions. Celebration pages share persistent mute/close
+// controls, so their content transitions must not cancel an in-flight tap.
 static void syncInputContext() {
     static uint32_t previous=~uint32_t(0);
-    const uint32_t key=uint32_t(currentScreenIndex) | (uint32_t(settingsView)<<4) |
+    const bool celebrating=showingLandingSeq || showingBlockFoundScreen;
+    const uint32_t key=celebrating ? (1u<<12) | (uint32_t(simCelebrationActive)<<14) :
+        uint32_t(currentScreenIndex) | (uint32_t(settingsView)<<4) |
         (uint32_t(setupView)<<6) | (uint32_t(inSetupMode)<<9) |
         (uint32_t(chargingBootMode)<<10) | (uint32_t(simCountdownActive)<<11) |
         (uint32_t(showingLandingSeq)<<12) | (uint32_t(showingBlockFoundScreen)<<13) |
@@ -1181,7 +1234,7 @@ static void handleGesture(gesture_event_t *event) {
     bool wasDimmed = displayOff || displayManuallyOff || !displayAwake;
     wakeDisplay();
 
-    if (wasDimmed || splashActive) {
+    if (wasDimmed) {
         return;  // Consume tap just for waking
     }
 
@@ -1195,7 +1248,7 @@ static void handleGesture(gesture_event_t *event) {
         const auto action = ui::demoAction(event->start_x, event->start_y);
         if (action == ui::DemoAction::Exit) {
             closeCelebration();
-                return;
+            return;
         }
         if (action == ui::DemoAction::ToggleMute && celebrationHasPlayback && audioHasBlockFoundTrack()) {
             audioSetBlockFoundMuted(!audioBlockFoundMuted());
@@ -1203,7 +1256,7 @@ static void handleGesture(gesture_event_t *event) {
                 lv_label_set_text(demoMuteLabel, audioBlockFoundMuted() ? LV_SYMBOL_MUTE : LV_SYMBOL_VOLUME_MAX);
                 lv_obj_center(demoMuteLabel);
             }
-                return;
+            return;
         }
     }
 
@@ -1213,6 +1266,9 @@ static void handleGesture(gesture_event_t *event) {
         if (swipe) advanceCelebrationPage(event->type==GESTURE_SWIPE_LEFT);
         return;
     }
+
+    // Celebration controls have priority over a splash it may have replaced.
+    if (splashActive) return;
 
     // Provisioning actions run on the owner task; gestures only request them.
     if (inSetupMode) {
@@ -1443,23 +1499,14 @@ static bool usbConfirmedAbsent(uint8_t samples = 3, uint16_t gapMs = 40) {
 // Fallback constant used only before settings are loaded
 #define DISPLAY_WAKE_BRIGHTNESS_DEFAULT   150
 
-// Low-battery brightness clamp. A near-empty cell sags under the mining/WiFi
-// current bursts, and the AMOLED tracks that rail droop as visible flicker
-// (most obvious on the Settings screen's large filled rows). Capping brightness
-// below this SoC cuts display current → less droop → less flicker, and buys a
-// little extra runtime. Updated every few seconds by checkCriticalPower(); read
-// (not computed) inside setBrightness() so the hot path stays I2C-free.
-#define LOW_BATT_BRIGHTNESS_THRESHOLD  10      // percent — applies on battery only
-#define LOW_BATT_BRIGHTNESS_CAP        90      // ~35% of 255
-bool g_lowBatteryDim = false;
 // Dim/off timeouts. Fixed, not user-adjustable: the screen dims after
-// DIM_TIMEOUT_S, then turns fully off SCREEN_OFF_EXTRA_MS later (dim at 10s,
-// off at 15s). A static UI left lit on an AMOLED risks permanent burn-in, so
+// DIM_TIMEOUT_S, then turns fully off SCREEN_OFF_EXTRA_MS later (dim at 60s,
+// off at 65s). A static UI left lit on an AMOLED risks permanent burn-in, so
 // this is deliberately not exposed as a setting.
 static ui::BatteryNotice batteryNotice;
 static std::atomic<bool> batteryUserWake{true};
 
-#define DIM_TIMEOUT_S             10UL
+#define DIM_TIMEOUT_S             60UL
 #define SCREEN_OFF_EXTRA_MS       5000UL
 #define WAKE_TIMEOUT_MS           (DIM_TIMEOUT_S * 1000UL)
 #define SCREEN_OFF_TIMEOUT_MS     (DIM_TIMEOUT_S * 1000UL + SCREEN_OFF_EXTRA_MS)
@@ -1634,7 +1681,6 @@ void checkCriticalPower() {
     // Cutoff uses fresh validated hardware evidence, independently of display
     // settling/smoothing. Invalid reads reset the existing two-check policy.
     const BatterySnapshot battery = getBatterySnapshot(true);
-    const int battPct = battery.percent;
     const int criticalPct = battery.sample.shutdownPercent();
     if (device::shouldShutdown(criticalPct, criticalPct >= 0 && criticalPct <= 2 && usbConfirmedAbsent())) {
         flushPendingSettings(true);
@@ -1663,10 +1709,6 @@ void checkCriticalPower() {
     static bool wasUSB = false;
     bool usbNow = isUSBConnected();
     diagnostics::usbState(usbNow);
-
-    // Refresh the low-battery brightness-clamp flag (read by setBrightness). Only
-    // on battery — while charging the rail is stiff, so no clamp is needed.
-    g_lowBatteryDim = (battPct >= 0 && battPct <= LOW_BATT_BRIGHTNESS_THRESHOLD && !usbNow);
 
     if (usbNow && !wasUSB && !displayManuallyOff && (displayOff || !displayAwake)) {
         wakeDisplay();
@@ -1732,10 +1774,7 @@ bool isScreenActive() {
 // =============================================================================
 
 void setBrightness(uint8_t level) {
-    // Low-battery clamp: cap the panel current when the cell is near empty to
-    // suppress rail-droop flicker. Never touches level 0 (off/dim-to-black) and
-    // only reduces — a user brightness already below the cap is left alone.
-    if (level > LOW_BATT_BRIGHTNESS_CAP && g_lowBatteryDim) level = LOW_BATT_BRIGHTNESS_CAP;
+    // Battery percentage never overrides the selected or inactivity brightness.
     currentBrightness = level;
     // Hold the bus lock so this can't interleave with a frame flush on another task.
     bool locked = (bus_mutex != NULL && xSemaphoreTake(bus_mutex, portMAX_DELAY) == pdTRUE);
@@ -2300,19 +2339,13 @@ void waveshareDisplay_LoadingScreen(void) {
     lv_obj_set_style_bg_color(lv_scr_act(), lv_color_hex(0x000000), 0);
     lv_obj_set_style_bg_opa(lv_scr_act(), LV_OPA_COVER, 0);
 
-    // Match Clock so the stars stay in place when the usable UI appears.
-    clock_stars::create(lv_scr_act());
-
     lv_obj_t *logo = lv_image_create(lv_scr_act());
     if (logo) {
-        // Keep the static stars visible through the original alpha artwork.
+        // Keep the original astronaut artwork on the plain black background.
         lv_obj_set_style_bg_opa(logo, LV_OPA_TRANSP, 0);
         lv_image_set_src(logo, &Astronaut_200x200);
         lv_image_set_scale(logo, 400);
         lv_obj_align(logo, LV_ALIGN_CENTER, 0, 0);
-        // Zero duration makes this a delayed instant reveal, without a fade.
-        // Deleting the image cancels the pending reveal automatically.
-        lv_obj_fade_in(logo, 0, SPLASH_STARS_MS);
         // Keep the astronaut until the next screen replaces the splash. No
         // separate removal callback or empty beat before Clock / Setup.
     }
@@ -2358,7 +2391,7 @@ static void setChargingPctText(lv_obj_t *lbl, int battPct) {
 static void animateChargingArc(void *obj, int32_t value) {
     lv_obj_t *arc = static_cast<lv_obj_t *>(obj);
     lv_arc_set_value(arc, value);
-    // The AMOLED driver flushes a full framebuffer. Preserve the static stars
+    // The AMOLED driver flushes a full framebuffer. Preserve the background
     // and labels around the small animated region on every reveal frame.
     lv_obj_invalidate(lv_obj_get_screen(arc));
 }
@@ -2428,7 +2461,7 @@ static void updateChargingScreen(const BatterySnapshot &battery) {
         if (waiting) lv_obj_add_flag(chargingStatus, LV_OBJ_FLAG_HIDDEN);
         else lv_obj_clear_flag(chargingStatus, LV_OBJ_FLAG_HIDDEN);
         // USB presence alone does not prove that the cell is charging.
-        const char *text = battery.full && battPct == 100 ? "Charged" :
+        const char *text = battery.full && battPct == 100 ? "Fully charged" :
                            battery.sample.charging() ? "Charging" : "Power connected";
         lv_label_set_text(chargingStatus, text);
         lv_obj_align(chargingStatus, LV_ALIGN_CENTER, 0, 30);
@@ -2450,8 +2483,6 @@ static void buildChargingScreen(const BatterySnapshot &battery) {
     lv_obj_set_style_bg_color(scr, lv_color_hex(0x000000), 0);
     lv_obj_set_style_bg_opa(scr, LV_OPA_COVER, 0);
 
-    clock_stars::create(scr, &clock_stars::chargingField);
-
     chargingArc = lv_arc_create(scr);
     if (!chargingArc) { SERIAL_PRINTLN("[LVGL] chargingArc alloc failed"); return; }
     lv_obj_set_size(chargingArc, 320, 320);
@@ -2460,10 +2491,10 @@ static void buildChargingScreen(const BatterySnapshot &battery) {
     lv_arc_set_bg_angles(chargingArc, 0, 360);
     lv_arc_set_range(chargingArc, 0, 100);
     lv_obj_remove_flag(chargingArc, LV_OBJ_FLAG_CLICKABLE);
-    lv_obj_set_style_arc_width(chargingArc, 14, LV_PART_MAIN);
+    lv_obj_set_style_arc_width(chargingArc, 20, LV_PART_MAIN);
     lv_obj_set_style_arc_color(chargingArc, lv_color_hex(0x20262C), LV_PART_MAIN);
     lv_obj_set_style_arc_rounded(chargingArc, true, LV_PART_MAIN);
-    lv_obj_set_style_arc_width(chargingArc, 14, LV_PART_INDICATOR);
+    lv_obj_set_style_arc_width(chargingArc, 20, LV_PART_INDICATOR);
     lv_obj_set_style_arc_color(chargingArc, THEME_GREEN, LV_PART_INDICATOR);
     lv_obj_set_style_arc_rounded(chargingArc, true, LV_PART_INDICATOR);
     lv_obj_set_style_pad_all(chargingArc, 0, LV_PART_KNOB);
@@ -2492,7 +2523,7 @@ static void buildChargingScreen(const BatterySnapshot &battery) {
     lv_obj_t *hint = lv_label_create(scr);
     chargingHint = hint;
     if (hint) {
-        lv_label_set_text(hint, "Press lower button to start");
+        lv_label_set_text(hint, "Press PWR to start");
         lv_obj_set_style_text_font(hint, &inter_28, 0);
         lv_obj_set_style_text_color(hint, THEME_TEXT_MUTED, 0);
         lv_obj_align(hint, LV_ALIGN_BOTTOM_MID, 0, -SAFE_BOTTOM - 10);
@@ -2527,7 +2558,7 @@ static void refreshChargingDisplay(const BatterySnapshot &battery) {
 
 // Blocking loop for charging boot mode — called from setup() before WiFi/mining init.
 // Draws a charging screen; lower Power starts the watch when the display is awake.
-// A dark-screen button press only wakes it; upper BOOT never starts the miner.
+// Lower PWR starts the miner with one tap, even when dark; upper BOOT only wakes.
 // lv_tick_task is already running (handles button polling on separate FreeRTOS task).
 void chargingBootLoop(void) {
     SERIAL_PRINTLN("[CHARGE] Entering charging boot mode");
@@ -2995,10 +3026,14 @@ void waveshareDisplay_DeviceScreen(unsigned long mElapsed) {
 
 // Row geometry and touch bounds live together in ui/page_controls.h.
 
-// Refined Settings cards retain the same large touch bounds and gesture handling.
+enum class SettingsRowControl { Navigate, Cycle, Toggle };
+
+// The whole row is a release-activated target; swipes never activate a control.
 static bool buildSettingsRow(const ui::PageRect& bounds, const char *name,
                              const char *valueText = nullptr,
-                             lv_color_t valueColor = THEME_TEXT_MUTED) {
+                             lv_color_t valueColor = THEME_TEXT_MUTED,
+                             SettingsRowControl control = SettingsRowControl::Navigate,
+                             bool enabled = false) {
     auto* row = lv_obj_create(lv_scr_act());
     if (!row) return false;
     registerTouchTarget(row, bounds);
@@ -3017,104 +3052,77 @@ static bool buildSettingsRow(const ui::PageRect& bounds, const char *name,
     lv_obj_set_style_text_font(label, &inter_28_semi_bold, 0);
     lv_obj_set_style_text_color(label, THEME_TEXT_WHITE, 0);
     lv_obj_align(label, LV_ALIGN_LEFT_MID, 0, 0);
-    auto* icon = lv_label_create(row);
-    if (!icon) return false;
-    lv_label_set_text(icon, LV_SYMBOL_RIGHT);
-    lv_obj_set_style_text_font(icon, &lv_font_montserrat_20, 0);
-    lv_obj_set_style_text_color(icon, lv_color_hex(0x848994), 0);
-    lv_obj_align(icon, LV_ALIGN_RIGHT_MID, 0, 0);
+    if (control == SettingsRowControl::Toggle) {
+        auto* toggle = lv_obj_create(row);
+        if (!toggle) return false;
+        lv_obj_remove_style_all(toggle);
+        lv_obj_set_size(toggle, 64, 36);
+        lv_obj_align(toggle, LV_ALIGN_RIGHT_MID, 0, 0);
+        lv_obj_set_style_radius(toggle, LV_RADIUS_CIRCLE, 0);
+        lv_obj_set_style_bg_opa(toggle, LV_OPA_COVER, 0);
+        lv_obj_set_style_bg_color(toggle, enabled ? THEME_GREEN : lv_color_hex(0x45474D), 0);
+        lv_obj_clear_flag(toggle, static_cast<lv_obj_flag_t>(LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_CLICKABLE));
+        auto* knob = lv_obj_create(toggle);
+        if (!knob) return false;
+        lv_obj_remove_style_all(knob);
+        lv_obj_set_size(knob, 28, 28);
+        lv_obj_set_style_radius(knob, LV_RADIUS_CIRCLE, 0);
+        lv_obj_set_style_bg_opa(knob, LV_OPA_COVER, 0);
+        lv_obj_set_style_bg_color(knob, THEME_TEXT_WHITE, 0);
+        lv_obj_clear_flag(knob, static_cast<lv_obj_flag_t>(LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_CLICKABLE));
+        lv_obj_align(knob, enabled ? LV_ALIGN_RIGHT_MID : LV_ALIGN_LEFT_MID, enabled ? -4 : 4, 0);
+    } else if (control == SettingsRowControl::Navigate) {
+        auto* icon = lv_label_create(row);
+        if (!icon) return false;
+        lv_label_set_text(icon, LV_SYMBOL_RIGHT);
+        lv_obj_set_style_text_font(icon, &lv_font_montserrat_24, 0);
+        lv_obj_set_style_text_color(icon, lv_color_hex(0xB7BAC3), 0);
+        lv_obj_align(icon, LV_ALIGN_RIGHT_MID, 0, 0);
+    }
     if (!valueText || !valueText[0]) return true;
     auto* value = lv_label_create(row);
     if (!value) return false;
     lv_label_set_text(value, valueText);
     lv_obj_set_style_text_font(value, &inter_24, 0);
     lv_obj_set_style_text_color(value, valueColor, 0);
-    lv_obj_align(value, LV_ALIGN_RIGHT_MID, -32, 0);
+    lv_obj_align(value, LV_ALIGN_RIGHT_MID, control == SettingsRowControl::Cycle ? 0 : -32, 0);
     return true;
 }
 
-static bool buildBrightnessDetail() {
-    clearPage();
-    bool built = buildDetailHeader("Brightness");
-    const int preset = settings::brightnessPreset(Settings.screenBrightness);
-    const ui::PageRect bounds[] = {ui::brightnessLow, ui::brightnessMedium, ui::brightnessHigh};
-    const int values[] = {60, 150, 230};
-    for (int i=0; i<3; ++i) {
-        auto* row = pageAction(bounds[i], settings::brightnessLabel(values[i]));
-        if (!row) { built=false; continue; }
-        lv_obj_set_style_radius(row, 18, 0);
-        lv_obj_align(lv_obj_get_child(row,0), LV_ALIGN_LEFT_MID, 20, 0);
-        if (preset == values[i]) {
-            lv_obj_set_style_border_width(row, 2, 0);
-            lv_obj_set_style_border_color(row, THEME_ORANGE, 0);
-            auto* check = lv_label_create(row);
-            if (!check) { built=false; continue; }
-            lv_label_set_text(check, LV_SYMBOL_OK);
-            lv_obj_set_style_text_font(check, &lv_font_montserrat_20, 0);
-            lv_obj_set_style_text_color(check, THEME_ORANGE, 0);
-            lv_obj_align(check, LV_ALIGN_RIGHT_MID, -20, 0);
-        }
-    }
-    return built;
-}
-
-static bool buildBatterySaverDetail() {
-    clearPage();
-    const bool header = buildDetailHeader("Battery Saver");
-    auto* row = pageAction(ui::saverToggle, Settings.batterySaver ? "On" : "Off");
-    if (row) {
-        lv_obj_set_style_radius(row,18,0);
-        auto* label = lv_obj_get_child(row,0);
-        lv_obj_align(label, LV_ALIGN_LEFT_MID, 18, 0);
-        lv_obj_set_style_text_color(label, Settings.batterySaver ? THEME_GREEN : THEME_TEXT_MUTED, 0);
-        auto* toggle = lv_obj_create(row);
-        if (toggle) {
-            lv_obj_remove_style_all(toggle);
-            lv_obj_set_size(toggle, 64, 36);
-            lv_obj_align(toggle, LV_ALIGN_RIGHT_MID, -18, 0);
-            lv_obj_set_style_radius(toggle, LV_RADIUS_CIRCLE, 0);
-            lv_obj_set_style_bg_opa(toggle, LV_OPA_COVER, 0);
-            lv_obj_set_style_bg_color(toggle, Settings.batterySaver ? THEME_GREEN : lv_color_hex(0x45474D), 0);
-            lv_obj_clear_flag(toggle, LV_OBJ_FLAG_SCROLLABLE);
-            auto* knob = lv_obj_create(toggle);
-            if (knob) {
-                lv_obj_remove_style_all(knob);
-                lv_obj_set_size(knob, 28, 28);
-                lv_obj_set_style_radius(knob, LV_RADIUS_CIRCLE, 0);
-                lv_obj_set_style_bg_opa(knob, LV_OPA_COVER, 0);
-                lv_obj_set_style_bg_color(knob, THEME_TEXT_WHITE, 0);
-                lv_obj_align(knob, Settings.batterySaver ? LV_ALIGN_RIGHT_MID : LV_ALIGN_LEFT_MID,
-                             Settings.batterySaver ? -4 : 4, 0);
-            }
-        }
-    }
-    auto* detail = pageText(Settings.batterySaver
-        ? "Mining and Wi-Fi pause after\n3 minutes of inactivity."
-        : "Mining continues while\nconnected. Uses more battery.", &inter_24, THEME_TEXT_WHITE, 245);
-    auto* wake = pageText(Settings.batterySaver
-        ? "Touch or press a button\nto resume."
-        : "The screen can sleep while\nmining continues.", &inter_24, THEME_TEXT_MUTED, 337);
-    auto* usb = Settings.batterySaver ? pageText("Mining stays active while\nplugged in.", &inter_20, THEME_TEXT_MUTED, 421) : nullptr;
-    for (auto* label : {detail, wake, usb}) {
-        if (label) { lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_LEFT, 0); lv_obj_set_style_text_line_space(label, 3, 0); }
-    }
-    return header && row && detail && wake && (!Settings.batterySaver || usb);
-}
 
 static bool buildSetupConfirmation() {
     clearPage();
-    const bool header = buildDetailHeader("Phone setup");
-    auto* detail = pageText("Change Wi-Fi, wallet, pool\nand time from your phone.", &inter_24, THEME_TEXT_WHITE, 110);
-    auto* notice = pageText("Your settings are kept.\nMining pauses during setup.", &inter_24, THEME_TEXT_MUTED, 198);
-    for(auto* label : {detail,notice}) if(label) {
-        lv_obj_set_style_text_align(label,LV_TEXT_ALIGN_LEFT,0);
-        lv_obj_set_style_text_line_space(label,5,0);
+    auto* header = pageText("Open Setup?", &inter_36_bold, THEME_TEXT_WHITE, 56);
+    auto* detail = pageText("Change Wi-Fi, wallet, pool\nand time from your phone.", &inter_24, THEME_TEXT_WHITE, 128);
+    auto* notice = pageText("Mining pauses during setup.", &inter_24, THEME_TEXT_MUTED, 214);
+    for (auto* label : {header, detail, notice}) if (label) {
+        lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_LEFT, 0);
+        lv_obj_set_style_text_line_space(label, 5, 0);
     }
-    auto* open = pageAction(ui::openSetup, "Open setup", true);
+    auto* open = pageAction(ui::openSetup, "Open Setup", true);
     auto* cancel = pageAction(ui::cancelSetup, "Cancel");
     for (auto* button : {open, cancel})
         if (button) lv_obj_set_style_radius(button, 18, 0);
     return header && detail && notice && open && cancel;
+}
+
+// Caller owns lvgl_mutex. Use a temporary overlay so the confirmation stays
+// available for retry, without trying to acquire the display lock recursively.
+static void showSetupFailureNotice() {
+    auto* label = lv_label_create(lv_layer_top());
+    if (!label) return;
+    lv_label_set_text(label, "Couldn't open setup.\nPlease try again.");
+    lv_obj_set_width(label, 350);
+    lv_obj_set_style_text_font(label, &inter_24, 0);
+    lv_obj_set_style_text_color(label, THEME_TEXT_WHITE, 0);
+    lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_CENTER, 0);
+    lv_obj_set_style_bg_color(label, lv_color_hex(0x151619), 0);
+    lv_obj_set_style_bg_opa(label, LV_OPA_COVER, 0);
+    lv_obj_set_style_radius(label, 18, 0);
+    lv_obj_set_style_pad_all(label, 16, 0);
+    lv_obj_align(label, LV_ALIGN_CENTER, 0, 0);
+    lv_obj_clear_flag(label, LV_OBJ_FLAG_CLICKABLE);
+    lv_obj_delete_delayed(label, 2500);
 }
 
 void waveshareDisplay_SettingsScreen(unsigned long mElapsed) {
@@ -3125,20 +3133,11 @@ void waveshareDisplay_SettingsScreen(unsigned long mElapsed) {
     settingsTappedAction = static_cast<int>(ui::PageAction::None);
     bool redraw = lastBuiltScreen != NAV_SETTINGS;
     if (action == ui::PageAction::Brightness && settingsView == ui::SettingsView::List) {
-        settingsView = ui::SettingsView::Brightness;
+        Settings.screenBrightness = settings::nextBrightness(Settings.screenBrightness);
+        setBrightness(Settings.screenBrightness);
+        markSettingsDirty();
         redraw = true;
-    } else if (settingsView == ui::SettingsView::Brightness && ui::selectedBrightness(action) >= 0) {
-        const int brightness = ui::selectedBrightness(action);
-        if (Settings.screenBrightness != brightness) {
-            Settings.screenBrightness = brightness;
-            setBrightness(Settings.screenBrightness);
-            markSettingsDirty();
-            redraw = true;
-        }
     } else if (action == ui::PageAction::BatterySaver && settingsView == ui::SettingsView::List) {
-        settingsView = ui::SettingsView::BatterySaver;
-        redraw = true;
-    } else if (action == ui::PageAction::ToggleSaver && settingsView == ui::SettingsView::BatterySaver) {
         Settings.batterySaver = !Settings.batterySaver;
         device::requestBatterySaver(Settings.batterySaver);
         markSettingsDirty();
@@ -3156,6 +3155,8 @@ void waveshareDisplay_SettingsScreen(unsigned long mElapsed) {
     } else if (action == ui::PageAction::OpenSetup && settingsView == ui::SettingsView::SetupConfirmation) {
         flushPendingSettings(true);
         reboot_to_setup();
+        // A successful restart never returns; a failed marker write does.
+        showSetupFailureNotice();
         return;
     }
     if (!redraw) return;
@@ -3164,22 +3165,13 @@ void waveshareDisplay_SettingsScreen(unsigned long mElapsed) {
         if (buildSetupConfirmation()) lastBuiltScreen = NAV_SETTINGS;
         return;
     }
-    if (settingsView == ui::SettingsView::BatterySaver) {
-        if (buildBatterySaverDetail()) lastBuiltScreen = NAV_SETTINGS;
-        return;
-    }
-    if (settingsView == ui::SettingsView::Brightness) {
-        if (buildBrightnessDetail()) lastBuiltScreen = NAV_SETTINGS;
-        return;
-    }
-    buildListScreen("SETTINGS", NAV_SETTINGS, &inter_28_semi_bold, SAFE_TOP + 8);
+    buildListScreen("SETTINGS", NAV_SETTINGS);
     const int preset = settings::brightnessPreset(Settings.screenBrightness);
     const bool brightnessRow = buildSettingsRow(ui::brightness, "Brightness",
-        settings::brightnessLabel(preset), lv_color_hex(0xB7BAC3));
+        settings::brightnessLabel(preset), THEME_GREEN, SettingsRowControl::Cycle);
     const bool saverRow = buildSettingsRow(ui::batterySaver, "Battery Saver",
-        Settings.batterySaver ? "On" : "Off",
-        Settings.batterySaver ? THEME_GREEN : lv_color_hex(0xB7BAC3));
-    const bool setupRow = buildSettingsRow(ui::setup, "Wi-Fi & setup");
+        nullptr, THEME_GREEN, SettingsRowControl::Toggle, Settings.batterySaver);
+    const bool setupRow = buildSettingsRow(ui::setup, "Wi-Fi & Setup");
     if (brightnessRow && saverRow && setupRow) lastBuiltScreen = NAV_SETTINGS;
 }
 
@@ -3409,8 +3401,7 @@ static void buildClockScreen(void) {
     lv_obj_set_style_bg_color(lv_scr_act(), THEME_BG_PRIMARY, 0);
     lv_obj_set_style_bg_opa(lv_scr_act(), LV_OPA_COVER, 0);
 
-    // Quiet star accents on this screen only; no animated background work.
-    clock_stars::create(lv_scr_act());
+    // Everyday screens share a plain black background for clear time and status.
 
     // Date
     clockUI.date_lbl = lv_label_create(lv_scr_act());
@@ -3550,7 +3541,7 @@ void waveshareDisplay_AnimateScreen(unsigned long frame) {
     checkBlockFound();
     if(navigationClickPending.exchange(false))handleNavigationButton();
 
-    // BOOT long-press (3s) triggers Block Found simulation only from the
+    // BOOT long-press (5s) triggers Block Found simulation only from the
     // main screens (clock, mining, device, settings) — not from charging,
     // WiFi config, setup wizard, etc.
     if (bootLongPressFlag) {
@@ -3611,10 +3602,15 @@ static void showSetupShortcutPrompt(bool failed = false) {
     if (!lvgl_mutex || xSemaphoreTake(lvgl_mutex, pdMS_TO_TICKS(100)) != pdTRUE) return;
     static lv_obj_t* prompt = nullptr;
     if (prompt) { lv_obj_delete(prompt); prompt = nullptr; }
+    if (failed) {
+        showSetupFailureNotice();
+        lv_refr_now(NULL);
+        xSemaphoreGive(lvgl_mutex);
+        return;
+    }
     auto* label = lv_label_create(lv_layer_top());
     if (label) {
-        lv_label_set_text(label, failed ? "Couldn't open setup.\nPlease try again."
-                                      : "Release both buttons\nto open setup");
+        lv_label_set_text(label, "Release both buttons\nto open setup");
         lv_obj_set_width(label, 350);
         lv_obj_set_style_text_font(label, &inter_24, 0);
         lv_obj_set_style_text_color(label, THEME_TEXT_WHITE, 0);
@@ -3625,23 +3621,36 @@ static void showSetupShortcutPrompt(bool failed = false) {
         lv_obj_set_style_pad_all(label, 16, 0);
         lv_obj_align(label, LV_ALIGN_CENTER, 0, 0);
         lv_obj_clear_flag(label, LV_OBJ_FLAG_CLICKABLE);
-        if (failed) lv_obj_delete_delayed(label, 2500);
-        else prompt = label;
+        prompt = label;
         lv_refr_now(NULL);
     }
     xSemaphoreGive(lvgl_mutex);
 }
 
-// PWR: an awake charging tap starts the watch; otherwise a tap toggles the display.
-// A deliberate three-second hold powers off.
-// Wake on press-down and consume its release. A continued hold still powers off.
+static void showPowerOffScreen() {
+    // The button task is outside the LVGL lock. Hold it through the short
+    // acknowledgement so normal status refreshes cannot replace this screen.
+    if (!lvgl_mutex || xSemaphoreTake(lvgl_mutex, pdMS_TO_TICKS(100)) != pdTRUE) return;
+    setBrightness(0);
+    displayHwWake();
+    buildPowerOffScreen(digitalRead(PWR_BUTTON_PIN) == HIGH);
+    invalidateScreen();
+    lv_refr_now(NULL);
+    setBrightness(Settings.screenBrightness > 0 ? Settings.screenBrightness : DISPLAY_WAKE_BRIGHTNESS_DEFAULT);
+    delay(500);
+    displayDeepSleep();
+    xSemaphoreGive(lvgl_mutex);
+}
+
+// PWR: a charging-screen tap starts the watch (even when the display is dark).
+// In normal operation a tap powers off; a three-second hold remains a fallback.
+// Act on release so the two-button setup shortcut can claim the gesture first.
 // Ignore a button held during boot. Hold fires before the PMU's hard cutoff.
 static void pollPwrButton() {
     static bool lastState = LOW;   // idle = LOW (external pull-down; pressed = HIGH)
     static uint32_t pressStart = 0;
     static bool bootSuppressed = false;  // ignore boot-hold entirely
     static bool longFired = false;       // power-off already triggered this press
-    static bool shortFiredEarly = false; // wake already fired on press-down
     static bool initialized = false;
 
     bool state = digitalRead(PWR_BUTTON_PIN);
@@ -3649,7 +3658,7 @@ static void pollPwrButton() {
         lastState = state;
         pressStart = millis();
         bootSuppressed = state == HIGH;
-        initialized = longFired = shortFiredEarly = true;
+        initialized = longFired = true;
         pwrShortFlag = pwrLongFlag = false;
         return;
     }
@@ -3658,25 +3667,14 @@ static void pollPwrButton() {
     if (lastState == LOW && state == HIGH) {
         pressStart = millis();
         longFired = false;
-        shortFiredEarly = false;
         device::noteUserActivity();
         lastWakeTime = millis();  // Any button press resets dim/off timer
         SERIAL_PRINTLN("[BTN] PWR press start");
 
-        // Instant wake: if display is fully off, fire immediately on
-        // press-down — don't wait for release. Only for fully-off state;
-        // a dimmed screen wakes on release.
-        if (!bootSuppressed && (displayOff || displayManuallyOff)) {
-            pwrShortFlag = true;
-            shortFiredEarly = true;
-            SERIAL_PRINTLN("[BTN] PWR instant wake (press-down)");
-        }
+
     }
 
-    // --- Deliberate power-off fires during hold, before the PMU cutoff ---
-    // Fires regardless of whether the press woke the screen from off: a brief
-    // wake tap never reaches three seconds, so a deliberate hold should always power off, even if it also happened to wake the display on press-down.
-    // (Still skipped for a button-already-held-at-boot.)
+    // Hold fallback fires once, before the PMU hard cutoff.
     if (state == HIGH && !longFired && !bootSuppressed) {
         if (millis() - pressStart >= PWR_OFF_HOLD_MS) {
             longFired = true;
@@ -3685,12 +3683,12 @@ static void pollPwrButton() {
         }
     }
 
-    // --- Short press fires on release to sleep an awake display ---
+    // --- Debounced short press fires on release to start/power off ---
     if (lastState == HIGH && state == LOW) {
         if (bootSuppressed) {
             bootSuppressed = false;
             SERIAL_PRINTLN("[BTN] PWR boot-hold release — ignored");
-        } else if (!longFired && !shortFiredEarly) {
+        } else if (!longFired) {
             uint32_t hold = millis() - pressStart;
             if (hold >= 20) {  // debounce: ignore sub-20ms glitches
                 pwrShortFlag = true;
@@ -3698,7 +3696,6 @@ static void pollPwrButton() {
             }
         }
         longFired = false;
-        shortFiredEarly = false;
     }
 
     // --- First-call init: detect button already held at boot ---
@@ -3829,20 +3826,17 @@ void checkWaveshareButtons(void) {
     }
     if(pwrShortFlag) {
         pwrShortFlag=false;
-        if(displayOff || displayManuallyOff || !displayAwake)wakeDisplay();
-        else if(chargingBootMode)chargingBootMode=false;
-        else sleepDisplayManually();
+        if (chargingBootMode) {
+            wakeDisplay();
+            chargingBootMode = false;
+        } else {
+            pwrLongFlag = true; // Share the orderly shutdown path with a hold.
+        }
     }
     if(pwrLongFlag) {
         pwrLongFlag=false;
         audioStopBlockFound();
-        // Show the deliberate action, with enough margin before PMU hard-off.
-        if(lvgl_mutex && xSemaphoreTake(lvgl_mutex,pdMS_TO_TICKS(100))==pdTRUE) {
-            clearPage();invalidateScreen();
-            pageText("Powering off",&inter_36,THEME_TEXT_WHITE,195);
-            pageText("Release the button",&inter_24,THEME_TEXT_MUTED,265);
-            lv_refr_now(NULL);xSemaphoreGive(lvgl_mutex);
-        }
+        showPowerOffScreen();
         powerOffDevice();
     }
 
@@ -3850,7 +3844,9 @@ void checkWaveshareButtons(void) {
 
 // Button handler that's aware of setup mode - called by pollBootButton in lv_tick_task
 static void handleNavigationButton() {
-    if (splashActive) return;
+    // A celebration can replace the startup splash before its flag is cleared.
+    if (splashActive && !simCountdownActive && !simCelebrationActive &&
+        !showingLandingSeq && !showingBlockFoundScreen) return;
     if (displayOff || displayManuallyOff || !displayAwake) { wakeDisplay(); return; }
     if (simCountdownActive) {
         closeCelebration();return;
@@ -3896,8 +3892,7 @@ static void serviceBatteryNotice() {
         lv_obj_delete(notice);notice=nullptr;
     }
     if(!eligible || notice || !batteryUserWake.exchange(false))return;
-    const char* message=batteryNotice.takeLow(true) ? "Low battery. Charge soon." :
-        batteryNotice.takeUnavailable(true,millis()) ? "Battery reading unavailable" : nullptr;
+    const char* message=batteryNotice.takeUnavailable(true,millis()) ? "Battery reading unavailable" : nullptr;
     if(!message)return;
     notice=lv_label_create(lv_layer_top());if(!notice)return;
     lv_label_set_text(notice,message);

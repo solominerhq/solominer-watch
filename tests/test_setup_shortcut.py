@@ -62,10 +62,11 @@ void wakeDisplay(){++wakes;displayOff=displayManuallyOff=false;displayAwake=true
 void sleepDisplayManually(){++sleeps;displayOff=true;displayAwake=false;}
 void powerOffDevice(){++shutdowns;}
 void audioStopBlockFound(){++stops;}
+int feedbacks=0;void showPowerOffScreen(){++feedbacks;}
 int lvgl_mutex=1;const int pdTRUE=1;int pdMS_TO_TICKS(int n){return n;}
 int xSemaphoreTake(int,int){return pdTRUE;}void xSemaphoreGive(int){}
 void clearPage(){}void invalidateScreen(){}void lv_refr_now(void*){}
-const int inter_36=0,inter_24=0,THEME_TEXT_WHITE=0,THEME_TEXT_MUTED=0;
+
 void pageText(const char*,const int*,int,int){}
 void showSetupShortcutPrompt(bool failed=false){if(!failed)++prompts;}
 void flushPendingSettings(bool force){assert(force);++saves;}
@@ -105,7 +106,7 @@ int main() {
     now+=500;boot=LOW;checkWaveshareButtons();
     now+=100;boot=HIGH;checkWaveshareButtons();assert(clicks==1);
     now+=500;pwr=HIGH;checkWaveshareButtons();
-    now+=100;pwr=LOW;checkWaveshareButtons();assert(sleeps==1);
+    now+=100;pwr=LOW;checkWaveshareButtons();assert(shutdowns==1&&sleeps==0);
 }
 ''')
 
@@ -182,6 +183,50 @@ int main(){
                         display.index('// SETUP → CONNECTING SCREEN')]
         self.assertIn('setupShowingDetails = false;', setup)
         self.assertIn('drawSetupQRScreen();', setup)
+
+    def test_settings_reports_failed_setup_request_and_allows_retry(self):
+        source = (ROOT/'src/wManager.cpp').read_text()
+        restart = source[source.index('#define FORCE_SETUP_FLAG'):
+                         source.index('void reset_configuration()')]
+        display = DISPLAY.read_text()
+        start = display.index('    } else if (action == ui::PageAction::OpenSetup')
+        end = display.index('\n    if (!redraw)', start)
+        action = display[start:end].replace('    } else if', '    if', 1)
+        run(r'''
+#include <cassert>
+#include "ui/page_controls.h"
+#define SERIAL_PRINTLN(...) do{}while(false)
+bool exists=false,openOk=false,writeOk=true;int reboots=0,notices=0,flushes=0;
+struct Restart {};
+struct File {
+    explicit operator bool()const{return openOk;}
+    int print(const char*){exists=true;return writeOk?1:0;}
+    void close(){}
+};
+struct Fs {
+    File open(const char*,const char*){return {};}
+    bool exists(const char*){return ::exists;}
+    void remove(const char*){::exists=false;}
+} SPIFFS;
+struct Esp {void restart(){++reboots;throw Restart{};}} ESP;
+void checkpointMiningStats(){}void delay(int){}
+void flushPendingSettings(bool force){assert(force);++flushes;}
+void showSetupFailureNotice(){++notices;}
+auto settingsView=ui::SettingsView::SetupConfirmation;
+'''+restart+'\nvoid dispatch(ui::PageAction action) {\n'+action+'}\n'+r'''
+int main(){
+    dispatch(ui::PageAction::OpenSetup);
+    assert(notices==1&&reboots==0&&!exists&&flushes==1);
+    assert(settingsView==ui::SettingsView::SetupConfirmation);
+    openOk=true;writeOk=false;dispatch(ui::PageAction::OpenSetup);
+    assert(notices==2&&reboots==0&&!exists&&flushes==2);
+    // A subsequent successful retry really restarts; it must not show an error.
+    writeOk=true;
+    try {dispatch(ui::PageAction::OpenSetup);assert(false);} catch(const Restart&) {}
+    assert(reboots==1&&notices==2&&exists&&flushes==3);
+    assert(checkAndClearForceSetupFlag()&&!isSetupBootRequested());
+}
+''')
 
 
 if __name__ == '__main__':

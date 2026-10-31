@@ -19,7 +19,8 @@ DIRECTORIES = ['src', 'include', 'examples', 'tests', 'scripts', 'licenses', '.g
 DOCS = ['ARCHITECTURE.md', 'HARDWARE_TESTS.md', 'DIAGNOSTICS.md',
         'LIGHT_SLEEP_TEST.md', 'RELEASING.md', 'ASSET_PROVENANCE.md',
         'PHONE_SETUP.md', 'USER_GUIDE.md', 'AUDIO_DECODER.md', 'CUSTOM_AUDIO.md',
-        'DEPENDENCIES.md', 'dependency-inventory.json', 'dependency-upstreams.json']
+        'DEPENDENCIES.md', 'dependency-inventory.json', 'dependency-upstreams.json',
+        'FIRMWARE_UPDATE.md', 'RELEASE_v3.0.0.md']
 SKIP = {'__pycache__', '.DS_Store'}
 
 def source_files(root=ROOT):

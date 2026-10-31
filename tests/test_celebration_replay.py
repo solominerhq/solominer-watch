@@ -29,7 +29,11 @@ class CelebrationReplay(unittest.TestCase):
                               'static bool stopRequested=false;\nvoid audioStopBlockFound(){stopRequested=true;++stopCalls;}')
         stubs = stubs.replace('void dismissBlockFoundScreen(){clearDemoControls();showingLandingSeq=showingBlockFoundScreen=celebrationHasPlayback=false;audioStopBlockFound();}', '')
         stubs = stubs.replace('void updateCelebrationTour(){}', '')
-        stubs = stubs.replace('void renderLandingSequence(){landingBuilt=true;playing=true;}', '')
+        stubs = stubs.replace('void renderLandingSequence(){landingBuilt=true;playing=true;celebrationClockArmed=true;}', '')
+        stubs = stubs.replace('void invalidateScreen(){++invalidations;}',
+                              'static bool inputSynced=false;\nvoid invalidateScreen(){++invalidations;inputSynced=false;}\nvoid syncInputContext(){inputSynced=true;}')
+        stubs = stubs.replace('void lv_refr_now(void*){}',
+                              'void lv_refr_now(void*){if(showingLandingSeq && landingBuilt && !celebrationClockArmed)assert(controls && inputSynced);}')
         stubs += r'''
 static uint32_t celebrationStartTick=0,celebrationFallbackStart=0;
 static bool celebrationFallbackClock=false;
@@ -121,6 +125,29 @@ int main(){
  assert(playCalls==before&&celebrationElapsedMs()==0);
  playing=false;dispatch();assert(playCalls==before+1&&landingBuilt&&celebrationPage==0);
  closeCelebration();assert(currentScreenIndex==NAV_MINING&&valids==4);
+ // Manual navigation works at audio time zero, including silent builds and a
+ // stale startup-splash flag. It must not restart the song or resume the tour.
+ for(bool track:{false,true})for(bool staleSplash:{false,true})
+ for(unsigned at:{0u,50u,850u,2756u})for(int direction:{0,1,2}){
+  playing=false;hasTrack=track;now+=20000;currentScreenIndex=NAV_SETTINGS;
+  startBlockFoundSimulation(false);dispatch();
+  assert(celebrationClockArmed&&landingBuilt&&showingLandingSeq);
+  splashActive=staleSplash;songClockValid=true;songPosition=at;
+  before=playCalls;
+  if(direction==0)handleNavigationButton();
+  else {
+   gesture_event_t swipe{direction==1?GESTURE_SWIPE_LEFT:GESTURE_SWIPE_RIGHT,205,250};
+   handleGesture(&swipe);
+  }
+  const int expected=direction==2?2:1;
+  assert(celebrationPage==expected&&celebrationTour.manual);
+  assert(showingBlockFoundScreen&&!showingLandingSeq&&simCelebrationActive);
+  dispatch();assert(playCalls==before&&playing==track);
+  now+=30000;songPosition=30000;dispatch();
+  assert(celebrationPage==expected&&playCalls==before&&playing==track);
+  closeCelebration();assert(!showingBlockFoundScreen&&!simCelebrationActive);
+  splashActive=false;
+ }
  // Silent builds start immediately, reach the receipt, and replay from zero.
  playing=false;hasTrack=false;songClockValid=true;songPosition=130176;
  for(int repeat=0;repeat<3;++repeat){

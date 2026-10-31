@@ -12,17 +12,17 @@ struct MiningStatus {
   StatusTone tone;
 };
 inline MiningStatus connectionStatus(bool wifi, int phase, bool cooling, bool rateReady = true, unsigned retries = 0, bool saverIdle = false, network::WifiStage wifiStage = network::WifiStage::Waiting, bool wifiAttention = false, network::WifiProblem wifiProblem = network::WifiProblem::Unknown) {
-  if (saverIdle) return {"Battery Saver", "Battery Saver", "", StatusAction::None, StatusTone::Neutral};
+  if (saverIdle) return {"Mining paused", "Mining paused", "", StatusAction::None, StatusTone::Neutral};
   if (!wifi) return {"Connecting to Wi-Fi", "Connecting to Wi-Fi",
     wifiAttention ? network::problemHint(wifiProblem) : "",
     wifiStage == network::WifiStage::Waiting ? StatusAction::RetryWifi : StatusAction::None,
     StatusTone::Wifi};
-  if (phase == POOL_PHASE_AUTH_REJECTED) return {"Check pool settings", "Check pool settings", "Review login in Settings", StatusAction::OpenSetup, StatusTone::Progress};
+  if (phase == POOL_PHASE_AUTH_REJECTED) return {"Check pool settings", "Check pool settings", "Open Setup to check", StatusAction::OpenSetup, StatusTone::Progress};
   // One label through the handshake and ordinary retries; repeated failures
   // retain guidance while another TCP/subscribe/authorize attempt is underway.
   if (retries >= 4 && phase != POOL_PHASE_MINING && phase != POOL_PHASE_WAITING_JOB)
     return {"Pool unavailable", "Pool unavailable", "Retrying automatically", StatusAction::None, StatusTone::Progress};
-  if (phase == POOL_PHASE_WAITING_JOB) return {"Waiting for work", "Waiting for work", "", StatusAction::None, StatusTone::Progress};
+  if (phase == POOL_PHASE_WAITING_JOB) return {"Starting mining", "Starting mining", "", StatusAction::None, StatusTone::Progress};
   if (phase != POOL_PHASE_MINING) return {"Joining pool", "Joining pool", "", StatusAction::None, StatusTone::Progress};
   if (cooling) return {"Cooling down", "Cooling down", "Resumes automatically", StatusAction::None, StatusTone::Attention};
   if (!rateReady) return {"Starting mining", "Starting mining", "", StatusAction::None, StatusTone::Progress};

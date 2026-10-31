@@ -16,7 +16,8 @@ static constexpr uint32_t dotsMs = impactMs + 1333;
 static constexpr uint32_t celebrationHoldMs = 8000;
 static constexpr uint32_t detailsMs = dotsMs + celebrationHoldMs;
 static constexpr uint32_t rewardHoldMs = 6000;
-inline bool navigationReady(uint32_t elapsed) { return elapsed >= dotsMs; }
+// Intro dots appear with the settled scene; manual navigation can skip earlier.
+inline bool pageDotsReady(uint32_t elapsed) { return elapsed >= dotsMs; }
 inline uint8_t nextPage(uint8_t page, bool forward) { return (page + (forward ? 1 : 2)) % 3; }
 inline uint8_t landingFrame(uint32_t elapsed) {
     // The rejected third pose is deliberately omitted.

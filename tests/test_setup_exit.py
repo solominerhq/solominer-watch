@@ -13,27 +13,32 @@ PRE=r'''
 #define SECOND_MS 1000
 enum {NM_waitingConfig,NM_Connecting};
 struct {int NerdStatus=NM_waitingConfig;} mMonitor;
-bool shouldSaveConfig=false,portalConfigSaved=false,wifiSetupSubmitted=false;
+bool shouldSaveConfig=false,portalConfigSaved=false,wifiSetupSubmitted=false,wifiSetupConnected=false;
+std::atomic<bool> setupExitCompleted{false};
 bool committed=false; unsigned off=0,restart=0,idles=0;
 std::atomic<bool> setupExitRequested{false};
-struct {int state=0;int status(){return state;}} WiFi;
+struct {int state=0;int status(){return state;}const char* localIP(){return "192.0.2.1";}} WiFi;
+#define SERIAL_PRINT(...) ((void)0)
 struct {void restart(){++::restart;}} ESP;
 struct Target {char ssid[33];} target={"Saved network"};
 Target wifiTargetSnapshot(){return target;}
 void delay(int){++idles;}
 void powerOffDevice(){++off;}
 struct Manager {
- bool active=true,web=false,busy=false; unsigned stops=0,steps=0;
+ bool active=true,web=false,busy=false,callbacks=true; unsigned stops=0,steps=0;
  std::function<bool()> processEvent;
  bool getConfigPortalActive(){return active;}
  bool getWebPortalActive(){return web;}
  void stopWebPortal(){assert(!busy);web=false;}
  void stopConfigPortal(){assert(!busy);active=false;++stops;}
+ void setSaveParamsCallback(std::nullptr_t){}
+ void clearBrandedPortalCallbacks(){callbacks=false;}
  bool process(){busy=true;++steps;bool connected=processEvent();busy=false;return connected;}
 } wm;
 void reset(){
+ (void)ESP; // Keep the restart trap available to catch a regression.
  wm=Manager{};target=Target{"Saved network"};mMonitor.NerdStatus=NM_waitingConfig;
- shouldSaveConfig=portalConfigSaved=wifiSetupSubmitted=committed=false;
+ shouldSaveConfig=portalConfigSaved=wifiSetupSubmitted=wifiSetupConnected=committed=setupExitCompleted=false;
  setupExitRequested=false;off=restart=idles=0;WiFi.state=0;
 }
 '''
@@ -55,9 +60,16 @@ int main(){
    shouldSaveConfig=portalConfigSaved=committed=true;setupExitRequested=true;
    wm.active=false;WiFi.state=WL_CONNECTED;return true;
  };run();assert(committed&&restart==0&&off==0);
- // Successful Save without exit retains the existing restart behavior.
- reset();wm.processEvent=[](){shouldSaveConfig=portalConfigSaved=committed=true;wm.active=false;WiFi.state=WL_CONNECTED;return true;};
- run();assert(committed&&restart==1&&off==0);
+ // Successful Save must continue to the normal startup handoff. A restart
+ // would trap a USB-powered watch back in its charging-only startup loop.
+ reset();wm.processEvent=[](){shouldSaveConfig=portalConfigSaved=committed=wifiSetupSubmitted=true;wm.active=false;WiFi.state=WL_CONNECTED;return true;};
+ run();assert(committed&&restart==0&&off==0&&wifiSetupConnected&&setupExitCompleted);
+ assert(mMonitor.NerdStatus==NM_Connecting&&!wm.callbacks&&WiFi.status()==WL_CONNECTED);
+ // If the link drops while the portal closes, the saved configuration still
+ // reaches the normal reconnect path instead of rebooting or reopening setup.
+ reset();wm.processEvent=[](){shouldSaveConfig=portalConfigSaved=committed=wifiSetupSubmitted=true;wm.active=false;return false;};
+ run();assert(committed&&restart==0&&off==0&&setupExitCompleted&&!wifiSetupConnected);
+ assert(mMonitor.NerdStatus==NM_Connecting&&!wm.callbacks);
  // An abandoned setup timeout resumes stored credentials; an unconfigured
  // timeout still uses the existing shutdown/USB charging fallback.
  reset();wm.processEvent=[](){wm.active=false;return false;};run();assert(off==0&&mMonitor.NerdStatus==NM_Connecting);
@@ -69,7 +81,10 @@ class SetupExitTests(unittest.TestCase):
         source=(ROOT/'src/wManager.cpp').read_text()
         a=source.index('        const bool exitedByUser = network::runProvisioningPortal')
         b=source.index('\n    }\n    else\n    {\n        // Normal boot',a)
-        code=PRE+'\nvoid run(){\n'+source[a:b]+'\n}\n'+CHECKS
+        # Include the production cleanup and display handoff after the portal;
+        # the normal autoConnect branch is not part of a provisioning session.
+        handoff=source[source.index('    //Conectado a la red Wifi',b):]
+        code=PRE+'\nvoid run(){\nconst bool forceConfig=true;\n'+source[a:b]+handoff+CHECKS
         with tempfile.TemporaryDirectory() as tmp:
             tmp=Path(tmp);(tmp/'test.cpp').write_text(code)
             subprocess.run(['c++','-std=c++11','-Wall','-Wextra','-Werror','-I'+str(ROOT/'src'),str(tmp/'test.cpp'),'-o',str(tmp/'test')],check=True)

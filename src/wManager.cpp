@@ -489,12 +489,10 @@ void init_WifiManager()
             }
         }
 
-        if (shouldSaveConfig && portalConfigSaved && !exitedByUser)
-        {
-            // The form was persisted by the save callback, before connection.
-            delay(3*SECOND_MS);
-            ESP.restart();
-        }
+        // Saved settings are already persisted and active. Continue startup
+        // through the shared portal cleanup below, then start the pool/miner
+        // tasks with those settings. Rebooting here would send a USB-powered
+        // watch back to charging-only mode and interrupt the setup handoff.
     }
     else
     {

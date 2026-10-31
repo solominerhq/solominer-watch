@@ -15,7 +15,7 @@ compatible solo-mining pool over Wi-Fi. It is a mining client, not a Bitcoin
 full node. Finding a block is extremely unlikely; this is a project for
 learning, experimenting, and enjoying Bitcoin on your wrist.
 
-**v3.0.0** · Build, inspect, and customize the firmware.
+**v3.1.0** · Build, inspect, and customize the firmware.
 The default celebration is silent; [custom music](docs/CUSTOM_AUDIO.md) is optional.
 Prebuilt firmware downloads are not currently provided.
 
@@ -31,7 +31,7 @@ Prebuilt firmware downloads are not currently provided.
 - Firmware updates through the setup portal and a two-button setup recovery shortcut.
 
 See the [user guide](docs/USER_GUIDE.md) for precise controls and behavior,
-and the [v3.0.0 release notes](docs/RELEASE_v3.0.0.md) for changes.
+and the [v3.1.0 release notes](docs/RELEASE_v3.1.0.md) for changes.
 
 ## Supported hardware
 
@@ -66,8 +66,8 @@ Command Prompt, or `.venv\Scripts\Activate.ps1` in PowerShell.
 The first build downloads dependencies pinned in `platformio.ini`.
 A source ZIP works without Git history or tags.
 
-Build outputs appear in `firmware/v3.0.0/`. For a setup-portal update, use
-**`SOLOMINER-v3.0.0.bin`**, the application image. Use the merged factory image
+Build outputs appear in `firmware/v3.1.0/`. For a setup-portal update, use
+**`SOLOMINER-v3.1.0.bin`**, the application image. Use the merged factory image
 only for the documented USB installation procedure on the supported board;
 do not upload that image through the portal. See [flashing and setup](docs/USER_GUIDE.md).
 

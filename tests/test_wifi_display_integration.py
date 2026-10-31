@@ -43,10 +43,7 @@ WifiStage wifiStage(){
 #define portMAX_DELAY 1
 #define DISPLAY_WAKE_BRIGHTNESS_DEFAULT 150
 #define DISPLAY_DIM_BRIGHTNESS 40
-#define DIM_TIMEOUT_S 10UL
-#define SCREEN_OFF_EXTRA_MS 5000UL
-#define WAKE_TIMEOUT_MS (DIM_TIMEOUT_S*1000UL)
-#define SCREEN_OFF_TIMEOUT_MS (WAKE_TIMEOUT_MS+SCREEN_OFF_EXTRA_MS)
+// DISPLAY_TIMEOUT_DEFINES
 void* disp_state_mutex=nullptr;
 int xSemaphoreTake(void*,int){return 1;}
 void xSemaphoreGive(void*){}
@@ -96,8 +93,10 @@ int main(){
     prepare(1000);dark();
     WiFi.event(ARDUINO_EVENT_WIFI_STA_CONNECTED);tickWake();assert(displayOff);
     WiFi.gotIp();tickWake();verifyReveal();
-    now+=10001;updateSmartDimming();assert(!displayOff&&!displayAwake&&brightness==40);
-    now+=5000;updateSmartDimming();assert(displayOff&&brightness==0);
+    now+=59999;updateSmartDimming();assert(!displayOff&&displayAwake);
+    now+=2;updateSmartDimming();assert(!displayOff&&!displayAwake&&brightness==40);
+    now+=4998;updateSmartDimming();assert(!displayOff&&brightness==40);
+    now+=2;updateSmartDimming();assert(displayOff&&brightness==0);
     // An IP renewal is not a fresh connection and cannot wake again.
     WiFi.gotIp();tickWake();assert(displayOff);
     // Dimmed display wakes through the same fresh-frame path.
@@ -141,7 +140,8 @@ class WifiDisplayIntegrationTests(unittest.TestCase):
         dim = section('void updateSmartDimming() {', '\n// Deferred settings persistence.')
         poll = section('        // Connection notifications wake only the panel;', '\n        // Persist any pending Settings change')
         reveal = section('        if (panelRedrawRequested.exchange(false)) {', '        lv_timer_handler();')
-        code = STUBS + wake + dim + '\nvoid tickWake(){\n' + poll + '\n}\nvoid reveal(){\n' + reveal + '\n}\n' + CHECKS
+        timeouts = section('#define DIM_TIMEOUT_S', '// Sleep the panel')
+        code = STUBS.replace('// DISPLAY_TIMEOUT_DEFINES', timeouts) + wake + dim + '\nvoid tickWake(){\n' + poll + '\n}\nvoid reveal(){\n' + reveal + '\n}\n' + CHECKS
         with tempfile.TemporaryDirectory(prefix='solominer-wifi-display-integration-') as temp:
             p = Path(temp)
             (p / 'test.cpp').write_text(code)

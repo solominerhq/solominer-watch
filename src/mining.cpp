@@ -773,9 +773,10 @@ void runStratumWorker(void *name) {
             wrote = (client.print(s_blockResend.payload) == strlen(s_blockResend.payload));
           }
         }
-        if (!wrote)
+        if (!wrote) {
           diagnostics::event(diagnostics::Event::SubmitFailed);
           SERIAL_PRINTF("[WORKER] submit write %s\n", isBlock ? "FAILED for a BLOCK - will keep re-sending" : "failed (share lost)");
+        }
 
         SERIAL_PRINT("   - Current diff share: "); SERIAL_PRINTLN(res->difficulty,12);
         SERIAL_PRINT("   - Current pool diff : "); SERIAL_PRINTLN(currentPoolDifficulty,12);

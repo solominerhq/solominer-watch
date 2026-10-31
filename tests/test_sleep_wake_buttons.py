@@ -29,19 +29,21 @@ void waveshareButtonClick(){++clicks;}
 '''
 CHECKS=r'''
 int main(){
- pollPwrButton();pollBootButton();
- pwr=HIGH;pollPwrButton();assert(pwrShortFlag);pwrShortFlag=false;displayOff=false;
- now+=100;pwr=LOW;pollPwrButton();assert(!pwrShortFlag&&!pwrLongFlag);
- // Same protection if the user explicitly turned the screen off before sleep.
- displayManuallyOff=true;now+=500;pwr=HIGH;pollPwrButton();assert(pwrShortFlag);
- pwrShortFlag=false;displayManuallyOff=false;now+=100;pwr=LOW;pollPwrButton();assert(!pwrShortFlag);
+ pollPwrButton();pollBootButton();assert(displayOff);
+ // Power taps emit only on release, including while the display is asleep.
+ pwr=HIGH;pollPwrButton();assert(!pwrShortFlag);
+ now+=100;pwr=LOW;pollPwrButton();assert(pwrShortFlag&&!pwrLongFlag);pwrShortFlag=false;
+ displayManuallyOff=true;now+=500;pwr=HIGH;pollPwrButton();assert(!pwrShortFlag);
+ now+=100;pwr=LOW;pollPwrButton();assert(pwrShortFlag);pwrShortFlag=false;
+ // Debounce rejects glitches.
+ now+=500;pwr=HIGH;pollPwrButton();now+=10;pwr=LOW;pollPwrButton();assert(!pwrShortFlag);
  // BOOT wakes on press; its release is consumed, not a page-change action.
  now+=500;boot=LOW;pollBootButton();bootWakeConsumed=true;now+=100;boot=HIGH;pollBootButton();assert(clicks==0&&!bootWakeConsumed);
  // Subsequent ordinary press still works, and a deliberate long hold still works.
  now+=500;boot=LOW;pollBootButton();now+=100;boot=HIGH;pollBootButton();assert(clicks==1);
  now+=500;boot=LOW;pollBootButton();bootWakeConsumed=true;now+=5000;pollBootButton();assert(bootLongPressFlag);
  boot=HIGH;pollBootButton();assert(clicks==1&&!bootWakeConsumed);
- // Awake tap requests screen sleep; a long hold requests power-off once.
+ // Awake tap requests power-off; a long hold requests power-off once.
  now+=500;pwr=HIGH;pollPwrButton();assert(!pwrShortFlag);now+=100;pwr=LOW;pollPwrButton();assert(pwrShortFlag);pwrShortFlag=false;
  now+=500;pwr=HIGH;pollPwrButton();now+=2999;pollPwrButton();assert(!pwrLongFlag);
  now+=1;pollPwrButton();assert(pwrLongFlag);pwrLongFlag=false;

@@ -14,6 +14,7 @@ SOLOMINER names and logos do not grant an endorsement or trademark license.
 | SOLOMINER wordmark | Outlined SVG in `assets/branding/` |
 | Inter | Inter 4.001 source TTFs, OFL notice, subset mapping, and hashes in `assets/fonts/` |
 | Montserrat / Font Awesome | Pinned LVGL font resources; corresponding notices in `licenses/` |
+| Lucide sound / close icons | SVG sources and notices in `src/third_party/lucide/`; generated `celebration_icons.c` and `.h` |
 | Audio fixtures | Original CC0 synthetic test tones; no commercial recording |
 
 ## Reproduce generated assets

@@ -3,7 +3,7 @@
 <div id="sm-phone-setup" aria-label="SOLOMINER phone setup">
   <div class="sm-app">
     <header class="sm-header">
-      <div class="sm-stars" aria-hidden="true"></div>
+
       <div class="sm-wordmark" aria-label="SOLOMINER"><svg xmlns="http://www.w3.org/2000/svg" viewBox="86.546 142.537 1281.869 134.516" role="img"><title>SOLOMINER</title>
 <path fill="#f47621" fill-rule="nonzero" d="M 690.15 144.833 C 701.065 144.729 711.981 144.79 722.896 144.876 C 738.9 167.508 754.303 190.565 770.577 213.005 C 780.109 198.993 790.146 185.329 799.879 171.448 C 806.167 162.872 812.247 154.131 818.883 145.816 L 819.501 145.511 C 830.033 145.433 840.584 145.477 851.125 145.477 C 851.195 173.448 850.629 201.402 850.716 229.365 C 851.003 244.803 850.603 260.241 850.708 275.688 C 840.827 275.627 830.947 275.862 821.075 275.671 C 820.892 247.552 821.205 219.432 820.91 191.322 C 814.787 199.523 808.907 207.917 802.888 216.205 C 794.782 227.686 786.258 238.898 778.831 250.848 C 773.116 250.918 767.393 250.796 761.679 250.839 C 748.05 230.757 733.621 211.239 719.791 191.296 C 719.757 219.276 719.739 247.256 719.765 275.236 C 709.841 275.245 699.917 275.375 689.993 275.253 C 689.454 264.321 690.394 253.379 689.863 242.455 C 689.898 225.347 689.724 208.238 690.08 191.139 C 689.454 178.093 690.28 165.038 689.854 152 C 689.889 149.608 690.107 147.225 690.15 144.833"/>
 <path fill="#f47621" fill-rule="nonzero" d="M 942.607 275.862 C 942.572 232.426 942.537 188.982 942.659 145.546 C 953.201 145.72 963.742 145.424 974.284 145.65 C 997.645 174.874 1022.451 202.933 1045.404 232.487 C 1045.621 224.511 1045.873 216.544 1045.526 208.569 C 1046.543 187.581 1045.934 166.542 1046.195 145.529 C 1056.093 145.737 1065.991 145.337 1075.898 145.581 C 1075.898 170.891 1075.002 196.192 1075.158 221.511 C 1074.967 239.628 1075.472 257.736 1075.35 275.853 C 1064.791 276.053 1054.241 275.784 1043.69 276.001 C 1026.974 256.371 1010.44 236.566 994.14 216.579 C 986.765 207.995 979.92 198.94 972.309 190.565 C 972.248 219.006 972.422 247.447 972.327 275.897 C 962.42 275.749 952.514 275.975 942.607 275.862"/>
@@ -16,76 +16,70 @@
 <path fill="#f47621" fill-rule="nonzero" d="M 914.62 275.714 L 884.298 275.714 L 884.298 145.537 L 914.62 145.537 Z"/>
 </svg></div>
       <div class="sm-header-copy">
-        <div class="sm-eyebrow">SOLOMINER WATCH</div>
-        <h1>Set up your watch.</h1>
-        <p>Wi-Fi. Bitcoin. You’re ready.</p>
+        <h1>Watch setup</h1>
       </div>
     </header>
 
     <main class="sm-main">
       <p id="sm-load-message" class="sm-hint" role="status">Loading your watch’s settings…</p><button type="button" id="sm-load-retry" class="sm-secondary" hidden>Try again</button><form id="sm-setup-form" novalidate>
         <section class="sm-section" aria-labelledby="sm-connect-title">
-          <div class="sm-section-heading"><span class="sm-step">01</span><h2 id="sm-connect-title">Connect</h2></div>
-          <label class="sm-label" for="sm-network">Wi-Fi network</label>
+          <div class="sm-section-heading"><h2 id="sm-connect-title">Wi-Fi</h2></div>
+          <label class="sm-sr" for="sm-network">Wi-Fi network</label>
           <div class="sm-control-row">
             <div class="sm-select-wrap sm-network-wrap"><span class="sm-symbol" aria-hidden="true"></span><select id="sm-network" class="sm-input cursor-interaction" aria-describedby="sm-network-hint sm-network-error" required><option value="">Select Wi-Fi</option><option value="manual">Other network…</option></select></div>
             <button type="button" class="sm-icon-button cursor-interaction" id="sm-refresh" aria-label="Refresh Wi-Fi networks"><span class="sm-symbol" aria-hidden="true">↻</span></button>
           </div>
-          <p id="sm-network-hint" class="sm-hint">Connect to a 2.4 GHz network or hotspot.</p>
-          <div id="sm-manual-wrap" class="sm-field" hidden><label class="sm-label" for="sm-ssid">Network name</label><input id="sm-ssid" class="sm-input" maxlength="32" placeholder="Enter the exact Wi-Fi name" autocomplete="off" autocapitalize="none" spellcheck="false" aria-describedby="sm-network-error"></div>
+          <p id="sm-network-hint" class="sm-hint">2.4 GHz Wi-Fi or hotspot.</p>
+          <div id="sm-manual-wrap" class="sm-field" hidden><label class="sm-label" for="sm-ssid">Network name</label><input id="sm-ssid" class="sm-input" maxlength="32" placeholder="Wi-Fi name" autocomplete="off" autocapitalize="none" spellcheck="false" aria-describedby="sm-network-error"></div>
           <p id="sm-network-error" class="sm-error" role="alert" hidden></p>
           <div class="sm-field">
             <label class="sm-label" for="sm-password">Wi-Fi password</label>
             <div class="sm-password-wrap"><input id="sm-password" class="sm-input" type="password" maxlength="64" placeholder="Network password" autocomplete="off" aria-describedby="sm-password-error"><button type="button" class="sm-show cursor-interaction" id="sm-password-toggle" aria-controls="sm-password" aria-pressed="false">Show</button></div>
             <p id="sm-password-error" class="sm-error" role="alert" hidden></p>
-            <label class="sm-check cursor-interaction"><input id="sm-open-network" type="checkbox"><span>This network has no password</span></label>
+            <label class="sm-check cursor-interaction"><input id="sm-open-network" type="checkbox"><span>No password</span></label>
           </div>
-          <details class="sm-help"><summary class="cursor-interaction">Using this phone’s hotspot?<span class="sm-symbol" aria-hidden="true">⌄</span></summary><div class="sm-help-copy">Enter the hotspot’s name and password manually. After saving, turn your hotspot back on so the watch can connect.<button type="button" id="sm-use-hotspot" class="sm-inline-button cursor-interaction">Enter hotspot details <span class="sm-symbol" aria-hidden="true">→</span></button></div></details>
         </section>
 
         <section class="sm-section" aria-labelledby="sm-bitcoin-title">
-          <div class="sm-section-heading"><span class="sm-step">02</span><h2 id="sm-bitcoin-title">Bitcoin address</h2></div>
-          <p class="sm-section-copy">Where any block reward would be sent.</p>
-          <label class="sm-label" for="sm-address">Your receiving address</label>
+          <div class="sm-section-heading"><h2 id="sm-bitcoin-title">Bitcoin address</h2></div>
+
+          <label class="sm-sr" for="sm-address">Bitcoin receiving address</label>
           <textarea id="sm-address" class="sm-input sm-address" rows="2" maxlength="79" placeholder="Paste your Bitcoin address" autocapitalize="none" autocomplete="off" spellcheck="false" required aria-describedby="sm-address-hint sm-address-error"></textarea>
-          <p id="sm-address-hint" class="sm-hint">Public address only. Never your recovery phrase.</p>
+          <p id="sm-address-hint" class="sm-hint">Receiving address only. Never your recovery phrase.</p>
           <p id="sm-address-error" class="sm-error" role="alert" hidden></p>
-          <details class="sm-help"><summary class="cursor-interaction">Where do I find this?<span class="sm-symbol" aria-hidden="true">⌄</span></summary><div class="sm-help-copy">Open your Bitcoin wallet, choose <strong>Receive</strong>, and copy the Bitcoin address. It usually starts with <strong>bc1</strong>, <strong>1</strong>, or <strong>3</strong>. Use a Bitcoin address, not a Lightning invoice.</div></details>
         </section>
 
-        <section class="sm-section" aria-labelledby="sm-clock-title">
-          <div class="sm-section-heading"><span class="sm-step">03</span><h2 id="sm-clock-title">Your clock</h2></div>
+        <section id="sm-clock-settings" class="sm-section" aria-labelledby="sm-clock-title">
+          <div class="sm-section-heading"><h2 id="sm-clock-title">Clock</h2></div>
           <label class="sm-label" for="sm-timezone">Timezone</label>
           <select id="sm-timezone" class="sm-input cursor-interaction" required aria-describedby="sm-timezone-hint sm-timezone-error"><option value="">Choose your timezone</option></select>
-          <p id="sm-timezone-hint" class="sm-hint">Choose the region where you’ll wear your watch.</p>
+          <p id="sm-timezone-hint" class="sm-hint">Select your timezone.</p>
           <p id="sm-timezone-error" class="sm-error" role="alert" hidden></p>
-          <div class="sm-clock-row"><fieldset class="sm-format"><legend class="sm-label">Clock format</legend><div class="sm-segment"><label class="cursor-interaction"><input type="radio" name="sm-format" value="12" checked><span>12-hour</span></label><label class="cursor-interaction"><input type="radio" name="sm-format" value="24"><span>24-hour</span></label></div></fieldset><div class="sm-clock-sample" aria-label="Clock preview"><span id="sm-time-preview">10:09 <small>AM</small></span><span class="sm-sample-label">ON YOUR WATCH</span></div></div>
+          <div class="sm-clock-row"><fieldset class="sm-format"><legend class="sm-label">Clock format</legend><div class="sm-segment"><label class="cursor-interaction"><input type="radio" name="sm-format" value="12" checked><span>12-hour</span></label><label class="cursor-interaction"><input type="radio" name="sm-format" value="24"><span>24-hour</span></label></div></fieldset><div class="sm-clock-sample" aria-label="Clock preview"><span id="sm-time-preview">10:09 <small>AM</small></span></div></div>
         </section>
 
-        <details id="sm-advanced" class="sm-advanced"><summary class="cursor-interaction"><span><span class="sm-symbol" aria-hidden="true"></span>Advanced</span><span class="sm-symbol" aria-hidden="true">⌄</span></summary><div class="sm-advanced-body"><p class="sm-section-copy">The default pool is ready to use. Change these only if you want a different setup.</p><label class="sm-label" for="sm-worker">Device name</label><input id="sm-worker" class="sm-input" value="SOLOMINER" maxlength="31" spellcheck="false"><div class="sm-field"><label class="sm-label" for="sm-pool">Pool host</label><input id="sm-pool" class="sm-input" value="public-pool.io" maxlength="80" spellcheck="false" autocapitalize="none" required></div><div class="sm-two-fields"><div><label class="sm-label" for="sm-port">Port</label><input id="sm-port" class="sm-input" type="number" inputmode="numeric" value="21496" min="1" max="65535" required></div><div><label class="sm-label" for="sm-pool-password">Pool password</label><input id="sm-pool-password" class="sm-input" value="x" maxlength="79" autocomplete="off" spellcheck="false" autocapitalize="none"></div></div><p id="sm-advanced-error" class="sm-error" role="alert" hidden></p></div></details>
-        <div class="sm-save-area"><p id="sm-save-error" class="sm-error" role="alert" hidden></p><button type="button" class="sm-primary cursor-interaction" id="sm-save" disabled>Save &amp; connect<span class="sm-symbol" aria-hidden="true">→</span></button><p class="sm-save-note">Your watch connects after you save.</p></div>
+        <details id="sm-advanced" class="sm-advanced"><summary class="cursor-interaction"><span><span class="sm-symbol" aria-hidden="true"></span>Pool settings</span><span class="sm-symbol" aria-hidden="true">⌄</span></summary><div class="sm-advanced-body"><p class="sm-section-copy">Defaults to Public Pool. Feel free to use the pool of your choice.</p><label class="sm-label" for="sm-worker">Device name</label><input id="sm-worker" class="sm-input" value="SOLOMINER" maxlength="31" spellcheck="false"><div class="sm-field"><label class="sm-label" for="sm-pool">Pool host</label><input id="sm-pool" class="sm-input" value="public-pool.io" maxlength="80" spellcheck="false" autocapitalize="none" required></div><div class="sm-two-fields"><div><label class="sm-label" for="sm-port">Port</label><input id="sm-port" class="sm-input" type="number" inputmode="numeric" value="21496" min="1" max="65535" required></div><div><label class="sm-label" for="sm-pool-password">Pool password</label><input id="sm-pool-password" class="sm-input" value="x" maxlength="79" autocomplete="off" spellcheck="false" autocapitalize="none"></div></div><p id="sm-advanced-error" class="sm-error" role="alert" hidden></p></div></details>
+        <div class="sm-save-area"><p id="sm-save-error" class="sm-error" role="alert" hidden></p><button type="button" class="sm-primary cursor-interaction" id="sm-save" disabled>Save &amp; connect<span class="sm-symbol" aria-hidden="true">→</span></button></div>
       </form>
 
       <section id="sm-handoff" class="sm-handoff" aria-labelledby="sm-handoff-title" hidden>
-        <div class="sm-eyebrow">SETTINGS SAVED</div>
-        <h2 id="sm-handoff-title">Your watch takes<br>it from here.</h2>
-        <p class="sm-handoff-copy">Check its screen as it connects to <strong id="sm-saved-network">your Wi-Fi</strong> and joins the mining pool.</p>
-        <div class="sm-handoff-note"><span class="sm-symbol" aria-hidden="true"></span><p id="sm-handoff-note-text">This setup page may close when your watch switches networks. That’s expected.</p></div>
-        <div class="sm-status-example"><span class="sm-status-dot"></span><div><span>Look for this on your watch</span><strong>Mining</strong></div></div>
-        <p class="sm-handoff-small">You’re ready when the watch shows a green mining status.</p>
-        <details class="sm-help sm-troubleshooting"><summary class="cursor-interaction">Still connecting?<span class="sm-symbol" aria-hidden="true">⌄</span></summary><div class="sm-help-copy">Make sure your Wi-Fi or hotspot is on and nearby. If it still won’t connect, reopen Setup from the watch’s Settings screen and check your network name and password. Your Bitcoin address and clock settings stay saved.</div></details>
-        <button type="button" class="sm-secondary cursor-interaction" id="sm-edit">Back to settings</button>
+
+        <h2 id="sm-handoff-title">Settings saved</h2>
+        <p class="sm-handoff-copy">Your watch will connect to <strong id="sm-saved-network">your Wi-Fi</strong>.</p>
+        <div class="sm-handoff-note"><span class="sm-symbol" aria-hidden="true"></span><p id="sm-handoff-note-text">This page may close as the watch connects.</p></div>
+        <details class="sm-help sm-troubleshooting"><summary class="cursor-interaction">Still connecting?<span class="sm-symbol" aria-hidden="true">⌄</span></summary><div class="sm-help-copy">Check that your Wi-Fi or hotspot is on. To change the network or password, open Settings → Phone setup on your watch.</div></details>
+        <button type="button" class="sm-secondary cursor-interaction" id="sm-edit">Edit settings</button>
       </section>
 
       <section id="sm-update-view" class="sm-update-view" aria-labelledby="sm-update-title" hidden>
         <button class="sm-back cursor-interaction" type="button" id="sm-update-back"><span class="sm-symbol" aria-hidden="true">←</span>Setup</button>
-        <h2 id="sm-update-title">Update your watch.</h2><p class="sm-section-copy">Choose the SOLOMINER firmware file you’ve downloaded.</p>
+        <h2 id="sm-update-title">Firmware update</h2><p class="sm-section-copy">Choose a SOLOMINER application .bin file.</p>
         <label class="sm-label" for="sm-firmware-file">Firmware file (.bin)</label><input class="sm-input sm-file-input" type="file" id="sm-firmware-file" accept=".bin"><p class="sm-hint">If the file picker won’t open, use Safari or Chrome at <a href="http://192.168.4.1/update">192.168.4.1/update</a>.</p><p class="sm-hint">Current version · <span data-firmware-version>—</span></p>
         <div class="sm-handoff-note sm-update-note"><span class="sm-symbol" aria-hidden="true"></span><p>Plug the watch into power and keep this page open until the update finishes.</p></div>
         <button type="button" class="sm-primary cursor-interaction" id="sm-update-action" disabled>Update firmware<span class="sm-symbol" aria-hidden="true">↗</span></button><p id="sm-update-message" class="sm-hint" role="status"></p>
       </section>
 
-      <footer class="sm-footer"><div class="sm-footer-row"><span>SOLOMINER · <span data-firmware-version>—</span></span><button type="button" class="sm-footer-action cursor-interaction" id="sm-open-update">Update firmware</button></div><span class="sm-local">No app. No account. Just your watch.</span></footer>
+      <footer class="sm-footer"><div class="sm-footer-row"><span>SOLOMINER · <span data-firmware-version>—</span></span><button type="button" class="sm-footer-action cursor-interaction" id="sm-open-update">Update firmware</button></div></footer>
       <div id="sm-announcement" class="sm-sr" aria-live="polite"></div>
     </main>
   </div>

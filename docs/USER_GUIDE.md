@@ -9,10 +9,10 @@ node. Rewards are extremely unlikely; its purpose is education and enjoyment.
 
 ## Current firmware version
 
-**v3.0.0** supports one watch and one build target: SOLOMINER on the
+**v3.1.0** supports one watch and one build target: SOLOMINER on the
 Waveshare ESP32-S3-Touch-AMOLED-2.06.
 
-See the [v3.0.0 release notes](RELEASE_v3.0.0.md) for this version.
+See the [v3.1.0 release notes](RELEASE_v3.1.0.md) for this version.
 Routine application updates preserve saved settings.
 
 Setup saves the timezone, clock format, wallet and pool settings immediately
@@ -37,11 +37,12 @@ timezone is applied immediately, including its daylight-saving rules.
   cooldown. Manual screen-off and idle Saver are respected.
   A connection arriving during the display eligibility check remains pending
   for the next display tick rather than losing its wake notification.
-- Settings has three large rows: Brightness, Battery Saver, and Wi-Fi & setup.
-  Brightness opens Low / Medium / High choices and applies the selection immediately.
-  Battery Saver has an On / Off switch, green when enabled, with a short explanation.
-  A header arrow, right swipe or BOOT returns from a detail screen. On the main
-  Settings list, BOOT still cycles to Clock. Changes save without a Done button.
+- Settings has three large rows: Brightness, Battery Saver, and Wi-Fi & Setup.
+  Tap Brightness to cycle Low / Medium / High; its value is green. Tap Battery
+  Saver to toggle it; the switch is green when enabled. Both apply immediately
+  without opening another page. Wi-Fi & Setup opens a confirmation with Open
+  Setup and Cancel buttons. On the Settings list, BOOT cycles to Clock.
+  Changes save without a Done button.
 - Phone setup explains what can be changed before opening the portal. Scan to
   connect joins the watch's Wi-Fi; Manual shows the network, password and address.
   Exit setup closes the portal and returns to Clock, preserving saved settings.
@@ -51,33 +52,36 @@ timezone is applied immediately, including its daylight-saving rules.
   Wi-Fi indicators are orange, pool indicators blue, and active mining green.
   After 30 seconds of active Wi-Fi attempts, network/hotspot guidance appears
   without changing the dot color. Saver sleep clears the warning.
-  Green Mining requires a fresh positive hashrate; Battery Saver is neutral gray.
-- Clock has sparse, static star accents around its clear text areas. The other
-  daily screens keep their original backgrounds; no star animation or timer runs.
-- Clock stars continue behind the transparent connection/mining status rows,
-  including the network subtitle, without an empty strip or new animation.
-- The astronaut splash opens with 250 ms of stars, shows the astronaut instantly
-  for 1.25 seconds, then switches directly to Clock or Setup (1.5 seconds total).
-  Splash and Clock share the same static stars so the background stays in place.
-  Startup work continues in parallel. The initial USB charging screen has
-  dimmer accents outside its battery ring and power-button instruction.
-  While the battery reading settles, Reading battery level... appears inside
-  the dim ring with a slowly rotating orange arc. A valid percentage replaces
-  the message and fills the green ring to the actual level; the number does
-  not count up through invented readings.
+  Green Mining requires a fresh positive hashrate; Mining paused is neutral gray.
+- Clock, Mining, Device, Settings, startup, and charging use plain black
+  backgrounds. Block Found retains the space background.
+- The astronaut appears immediately during startup and stays until Clock or
+  Setup replaces it, with a minimum splash duration of 1.5 seconds. Startup
+  work continues in parallel.
+- While the battery reading settles on the charging screen, Reading battery
+  level... appears inside a thick ring with a rotating orange arc. A valid
+  percentage replaces the message and fills the ring to the measured level;
+  the number does not count up through invented readings.
 - Block Found has three swipeable pages: celebration, reward, and block explorer
-  QR. Once the astronaut settles, hold BLOCK FOUND for eight seconds, then show
+  QR. Once the page dots appear, hold BLOCK FOUND for eight seconds, then show
   the reward for six seconds before holding the QR page;
   a developer-supplied recording continues across pages until it finishes or the
   user exits. The default build is silent.
-  Swiping or pressing BOOT takes manual control; the QR page holds. The demo leaves real counters intact.
-  Titles alternate white/orange during playback and settle into orange when
-  playback finishes. Numbers stay steady and the QR remains black and white.
+  Swiping or pressing BOOT works from the opening frame and takes manual
+  control, stopping the automatic page tour while optional music continues.
+  The demo leaves real counters intact. YOUR BLOCK and BLOCK REWARD alternate
+  white/orange in opposite phases during playback and settle into orange when
+  playback finishes. Values stay white; the QR remains black and white.
 - Hold BOOT for five seconds to open BLOCK FOUND DEMO with a three-second
-  countdown. Sound, page dots and close each have their own dark inset background.
-  Page dots appear two beats after the flag strike. The demo uses a historical example block and QR.
+  countdown with a Cancel button. Sound, page dots and close have separate dark
+  backings. Sound and close have enlarged touch targets and work from the first
+  frame on every page. Sound is omitted when no track is installed. Default
+  optional audio volume is 69/100. Page dots appear two beats after the flag
+  strike, or immediately after a manual page change. The demo uses a historical
+  example block and QR.
 - BLOCK REWARD shows the base subsidy in BTC, not transaction fees or a
-  guaranteed pool payout. YOUR BLOCK shows the height; SEE YOUR BLOCK contains the explorer QR.
+  guaranteed pool payout. YOUR BLOCK shows the height on the same page;
+  VIEW BLOCK is the third page, with the explorer QR.
   There is no USD conversion, price lookup, or price-related background task.
 
 Saved settings are preserved. Battery runtime and hotspot recovery still need
@@ -115,11 +119,13 @@ On Windows, activate with `.venv\Scripts\activate` and use `python` in place of
 
 Outputs are under `firmware/<version>/`:
 
-For sharing through the watch portal, use `SOLOMINER-<version>.bin`. This is identical to the application
-images below and are generated automatically on each firmware build.
+For the watch portal, use `SOLOMINER-<version>.bin`, generated with each build.
+Follow the [phone update instructions](FIRMWARE_UPDATE.md). The factory image
+is for USB installation only; never upload it through the phone updater.
 
 | File | Purpose |
 |---|---|
+| `SOLOMINER-<version>.bin` | Application image for the phone setup updater |
 | `Waveshare-AMOLED-206_factory.bin` | Factory image for this partition layout, offset `0x0` |
 | `Waveshare-AMOLED-206_firmware.bin` | Application image; use the normal PlatformIO upload or a compatible update process |
 | `Waveshare-AMOLED-206_manifest.json` | Version, file sizes, SHA-256 checksums |
@@ -146,9 +152,9 @@ hardware and partition layout. A raw application write to `0x10000` is appropria
 only when app0 is the selected boot slot; it is not a universal OTA update command.
 Do not erase flash during a routine upgrade if you want to retain configuration.
 
-USB connection at power-on may show the charging screen first. Press and release the lower (PWR) button to
-start the watch. If the charging display is dark, the first press wakes it;
-press and release the lower button again to start.
+USB connection at power-on may show the charging screen first. Press and release
+the lower (PWR) button once to start the watch, even if the charging display is
+dark. The top (BOOT) button wakes the charging display without starting the watch.
 
 ## First setup
 
@@ -159,12 +165,13 @@ receiving address, Wi-Fi credentials and timezone. The default endpoint is
 Availability and pool policies can change.
 
 The branded phone page groups Wi-Fi, your Bitcoin address and the clock;
-pool settings are under Advanced. Saved passwords and timezones are preserved.
+the Clock section stays open and pool settings are under Advanced. Saved
+passwords and timezones are preserved.
 See [phone setup implementation and testing](PHONE_SETUP.md) for editing
 the offline page or verifying it on a watch.
 
 The firmware validates the wallet checksum and waits for the pool to authorize
-the worker before using mining work. `Check pool login` means to check pool,
+the worker before using mining work. `Check pool settings` means to check pool,
 wallet/worker and pool password, rather than repeatedly changing Wi-Fi settings.
 
 ### Using an iPhone hotspot
@@ -193,9 +200,9 @@ required. [Apple's hotspot troubleshooting](https://support.apple.com/en-us/1198
 | Swipe left/right | Navigate screens |
 | BOOT short press | Wake / cycle screens; in charging-only mode, wake without starting the watch |
 | BOOT hold 5 seconds | Block-found demo (does not increment the real block count) |
-| PWR short press while dark/dim | Wake display |
-| PWR short press while lit | Start the watch from charging-only mode; otherwise sleep the display |
-| PWR hold 3 seconds | Save and power off on battery; return to charging-only mode on USB |
+| PWR short press in charging-only mode | Start the watch, whether its display is lit or dark |
+| PWR short press while running | Save and power off on battery; return to charging-only mode on USB |
+| PWR hold 3 seconds | Same orderly shutdown as a tap; available as a fallback |
 | Hold BOOT + PWR together for 5 seconds, then release both | Restart into phone setup with the QR code; preserve saved settings and statistics |
 
 For the setup shortcut, press both buttons together while the watch is running
@@ -206,7 +213,7 @@ The setup restart bypasses the charging screen even when USB is connected.
 This software shortcut cannot recover a completely frozen application; see
 **Flash and recovery** above for the independent USB download path.
 
-The screen dims after 10 seconds and turns off after 15 seconds in normal use.
+The screen dims after 60 seconds and turns off after 65 seconds in normal use.
 Setup and celebration screens have their own display rules. A dark screen does
 not itself pause mining; Saver uses the activity window described above. Offline, connecting and cooling states do not display a stale
 hashrate as usable mining. The RTC keeps the clock available without internet.

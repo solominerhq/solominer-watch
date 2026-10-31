@@ -11,13 +11,10 @@ constexpr PageRect brightness{24, 104, 362, 100};
 constexpr PageRect batterySaver{24, 220, 362, 100};
 constexpr PageRect setup{24, 336, 362, 100};
 constexpr PageRect detailBack{20, 21, 62, 64};
-constexpr PageRect brightnessLow{32, 117, 346, 88};
-constexpr PageRect brightnessMedium{32, 221, 346, 88};
-constexpr PageRect brightnessHigh{32, 325, 346, 88};
-constexpr PageRect saverToggle{32, 117, 346, 88};
-// Persistent footer controls sit above the centered celebration page dots.
-constexpr PageRect demoMute{40, 398, 72, 72};
-constexpr PageRect demoExit{298, 398, 72, 72};
+// Compact celebration controls with 21 px of extra touch padding on each side.
+// Targets stay inside the panel and do not overlap the central page indicators.
+constexpr PageRect demoMute{22, 403, 96, 96};
+constexpr PageRect demoExit{292, 403, 96, 96};
 constexpr PageRect miningBlocks{276, 365, 120, 88};
 constexpr PageRect blockNotice{80, 276, 250, 52};
 constexpr PageRect openSetup{32, 282, 346, 88};
@@ -30,30 +27,19 @@ constexpr PageRect bottomAction{32, 386, 346, 88};
 // Fixed primary row with room for optional guidance below.
 constexpr PageRect clockStatus{20, 349, 370, 104};
 enum class SetupView { Qr, Manual, Failed, Connecting, Leaving };
-enum class SettingsView { List, BatterySaver, SetupConfirmation, Brightness };
+enum class SettingsView { List = 0, SetupConfirmation = 2 };
 enum class PageAction { None = -1, Brightness, BatterySaver, ShowSetup, OpenSetup, Cancel,
-                        ToggleSaver, Back, BrightnessLow, BrightnessMedium, BrightnessHigh };
+                        Back = 6 };
 inline PageAction settingsAction(int x, int y, SettingsView view) {
-    if (view != SettingsView::List && detailBack.contains(x,y)) return PageAction::Back;
     if (view == SettingsView::SetupConfirmation) {
         if (openSetup.contains(x,y)) return PageAction::OpenSetup;
         if (cancelSetup.contains(x,y)) return PageAction::Back;
-    } else if (view == SettingsView::BatterySaver) {
-        if (saverToggle.contains(x,y)) return PageAction::ToggleSaver;
-    } else if (view == SettingsView::Brightness) {
-        if (brightnessLow.contains(x,y)) return PageAction::BrightnessLow;
-        if (brightnessMedium.contains(x,y)) return PageAction::BrightnessMedium;
-        if (brightnessHigh.contains(x,y)) return PageAction::BrightnessHigh;
     } else {
         if (brightness.contains(x,y)) return PageAction::Brightness;
         if (batterySaver.contains(x,y)) return PageAction::BatterySaver;
         if (setup.contains(x,y)) return PageAction::ShowSetup;
     }
     return PageAction::None;
-}
-inline int selectedBrightness(PageAction action) {
-    return action == PageAction::BrightnessLow ? 60 : action == PageAction::BrightnessMedium ? 150 :
-           action == PageAction::BrightnessHigh ? 230 : -1;
 }
 enum class SetupAction { None, Manual, Qr, Retry, Exit };
 inline SetupAction setupAction(int x, int y, SetupView view) {

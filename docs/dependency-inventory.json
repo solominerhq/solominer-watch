@@ -337,6 +337,24 @@
   ],
   "selected_archives": [
     {
+      "path": ".pio/build/Waveshare-AMOLED-206/lib1cb/liblvgl.a",
+      "sha256": "3b19a6dada62c7711fd615ad6999f26064ed4986c43f103e38959aaaafa2f41d",
+      "bytes": 10679170,
+      "retained_nonzero_sections": true
+    },
+    {
+      "path": ".pio/build/Waveshare-AMOLED-206/lib1d3/libOneButton.a",
+      "sha256": "f4656ec1cd8e6b93f916023e49c88918933d8b7685343ada6523d4a4b5ccd5ff",
+      "bytes": 232276,
+      "retained_nonzero_sections": true
+    },
+    {
+      "path": ".pio/build/Waveshare-AMOLED-206/lib42a/libGFX Library for Arduino.a",
+      "sha256": "d3d801047c158da661ea1d250913546490a466462a73392dea4fe06be680824f",
+      "bytes": 13204648,
+      "retained_nonzero_sections": true
+    },
+    {
       "path": ".pio/build/Waveshare-AMOLED-206/lib4e6/libWiFi.a",
       "sha256": "8a247d139dd1b6ff065c0f3c335de0090c0f0d8afe194bf4e61da8018ace0a66",
       "bytes": 1995832,
@@ -361,26 +379,26 @@
       "retained_nonzero_sections": true
     },
     {
+      "path": ".pio/build/Waveshare-AMOLED-206/lib6b6/libNTPClient.a",
+      "sha256": "868d75272e4bd8c6a61eea8bc1d7d4808eb649a782318e3c063cf275031132de",
+      "bytes": 140344,
+      "retained_nonzero_sections": true
+    },
+    {
       "path": ".pio/build/Waveshare-AMOLED-206/lib6d7/libWire.a",
       "sha256": "ac4b8aacc045184766c21459f34c56f630e7ff1c9bb95d2d35017a48065e8cc0",
       "bytes": 201878,
       "retained_nonzero_sections": true
     },
     {
-      "path": ".pio/build/Waveshare-AMOLED-206/lib83b/libXPowersLib.a",
+      "path": ".pio/build/Waveshare-AMOLED-206/lib9f2/libXPowersLib.a",
       "sha256": "2feb04b46f6ce0181a9cc37a4c49358e60077f35f9e053dc98a8036a56f91ae1",
       "bytes": 134284,
       "retained_nonzero_sections": true
     },
     {
-      "path": ".pio/build/Waveshare-AMOLED-206/lib98c/libGFX Library for Arduino.a",
-      "sha256": "d3d801047c158da661ea1d250913546490a466462a73392dea4fe06be680824f",
-      "bytes": 13204648,
-      "retained_nonzero_sections": true
-    },
-    {
       "path": ".pio/build/Waveshare-AMOLED-206/libFrameworkArduino.a",
-      "sha256": "3cfbcf81df46bbb3fcd23e5350b0848a01202d3ed82a34f208e66ba568a7cae6",
+      "sha256": "60ab5156e7b7160065a398c266104b18aba8c2b6fa7c021029bbe8432543f7ef",
       "bytes": 4317946,
       "retained_nonzero_sections": true
     },
@@ -391,32 +409,14 @@
       "retained_nonzero_sections": true
     },
     {
-      "path": ".pio/build/Waveshare-AMOLED-206/libacf/libOneButton.a",
-      "sha256": "f4656ec1cd8e6b93f916023e49c88918933d8b7685343ada6523d4a4b5ccd5ff",
-      "bytes": 232276,
-      "retained_nonzero_sections": true
-    },
-    {
       "path": ".pio/build/Waveshare-AMOLED-206/libad4/libDNSServer.a",
       "sha256": "1db2480c4d42315a0988387949e35cca3b1f6b0e38baa53d7e1436cd938828d5",
       "bytes": 125542,
       "retained_nonzero_sections": true
     },
     {
-      "path": ".pio/build/Waveshare-AMOLED-206/libb0a/libNTPClient.a",
-      "sha256": "868d75272e4bd8c6a61eea8bc1d7d4808eb649a782318e3c063cf275031132de",
-      "bytes": 140344,
-      "retained_nonzero_sections": true
-    },
-    {
-      "path": ".pio/build/Waveshare-AMOLED-206/libd64/liblvgl.a",
-      "sha256": "3b19a6dada62c7711fd615ad6999f26064ed4986c43f103e38959aaaafa2f41d",
-      "bytes": 10679170,
-      "retained_nonzero_sections": true
-    },
-    {
-      "path": ".pio/build/Waveshare-AMOLED-206/libd98/libWiFiManager.a",
-      "sha256": "e5f73f6a544c2a3e26e900fd631a70c3cf795fe36eb91d5a0c6a06033eaad584",
+      "path": ".pio/build/Waveshare-AMOLED-206/libbe2/libWiFiManager.a",
+      "sha256": "e33053caae88ca7ca0474a17721f6eb90c3fa767e5935fe133038bd17634995c",
       "bytes": 1722404,
       "retained_nonzero_sections": true
     },

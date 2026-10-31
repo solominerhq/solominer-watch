@@ -4,7 +4,7 @@ const root=document.getElementById('sm-phone-setup');
 const $=s=>root.querySelector(s);
 const form=$('#sm-setup-form');
 const fields={network:$('#sm-network'),ssid:$('#sm-ssid'),password:$('#sm-password'),address:$('#sm-address'),timezone:$('#sm-timezone')};
-let config=null,networks=[],scanning=false,scanTimer=0,scanAbort=null,scanRound=0,saving=false,hotspot=false,uploading=false;
+let config=null,networks=[],scanning=false,scanTimer=0,scanAbort=null,scanRound=0,saving=false,uploading=false;
 let view=location.pathname==='/update'?'update':'setup';
 let savedName='your Wi-Fi';
 const aliases={'US/Pacific':'America/Los_Angeles','US/Eastern':'America/New_York','US/Central':'America/Chicago','US/Mountain':'America/Denver','Asia/Calcutta':'Asia/Kolkata','Asia/Katmandu':'Asia/Kathmandu','Europe/Dublin':'Europe/London','Europe/Paris':'Europe/Berlin','Europe/Madrid':'Europe/Berlin','Europe/Rome':'Europe/Berlin','Europe/Amsterdam':'Europe/Berlin','Europe/Helsinki':'Europe/Athens','Asia/Singapore':'Asia/Shanghai','Asia/Hong_Kong':'Asia/Shanghai','Asia/Seoul':'Asia/Tokyo','Australia/Melbourne':'Australia/Sydney','Asia/Jakarta':'Asia/Bangkok','America/Buenos_Aires':'America/Argentina/Buenos_Aires','Etc/UTC':'UTC'};
@@ -12,15 +12,15 @@ function text(el,value){el.textContent=value;}
 function announce(s){text($('#sm-announcement'),s);}
 function error(name,message){const el=$('#sm-'+name+'-error');if(el){text(el,message);el.hidden=!message;}if(fields[name])fields[name].setAttribute('aria-invalid',String(!!message));}
 function stopScan(){clearTimeout(scanTimer);if(scanAbort)scanAbort.abort();scanAbort=null;scanning=false;scanRound++;$('#sm-refresh').disabled=false;}
-function setView(next){view=next;form.hidden=view!=='setup';$('#sm-handoff').hidden=view!=='saved';$('#sm-update-view').hidden=view!=='update';$('.sm-header-copy').hidden=view!=='setup';$('.sm-footer').hidden=view==='update';if(view!=='setup')stopScan();text($('#sm-saved-network'),savedName);text($('#sm-handoff-note-text'),hotspot?'Using this phone’s hotspot? Turn it back on now so your watch can connect.':'This setup page may close when your watch switches networks. That’s expected.');root.scrollIntoView({block:'start'});}
+function setView(next){view=next;form.hidden=view!=='setup';$('#sm-handoff').hidden=view!=='saved';$('#sm-update-view').hidden=view!=='update';$('.sm-header-copy').hidden=view!=='setup';$('.sm-footer').hidden=view==='update';if(view!=='setup')stopScan();text($('#sm-saved-network'),savedName);text($('#sm-handoff-note-text'),'This page may close as the watch connects.');root.scrollIntoView({block:'start'});}
 function inputBusy(busy){form.querySelectorAll('input,textarea,select,button').forEach(el=>{el.disabled=busy;});if(!busy)passwordState();}
 function networkName(){return fields.network.value==='manual'?fields.ssid.value:(fields.network.value.startsWith('n:')?fields.network.value.slice(2):'');}
-function passwordState(){const same=config&&networkName()===config.ssid;const open=$('#sm-open-network').checked;fields.password.disabled=open;$('#sm-password-toggle').disabled=open;fields.password.placeholder=open?'No password needed':same&&config.hasPassword?'Saved password · leave blank to keep':'Network password';}
-function networkChanged(){const manual=fields.network.value==='manual';$('#sm-manual-wrap').hidden=!manual;fields.ssid.required=manual;const selected=networks.find(n=>n.ssid===networkName());hotspot=false;$('#sm-open-network').checked=!manual&&(selected?selected.open:!!(config&&config.ssid&&networkName()===config.ssid&&!config.hasPassword));fields.password.value='';passwordState();error('network','');error('password','');}
+function passwordState(){const same=config&&networkName()===config.ssid;const open=$('#sm-open-network').checked;fields.password.disabled=open;$('#sm-password-toggle').disabled=open;fields.password.placeholder=open?'No password needed':same&&config.hasPassword?'Saved password':'Network password';}
+function networkChanged(){const manual=fields.network.value==='manual';$('#sm-manual-wrap').hidden=!manual;fields.ssid.required=manual;const selected=networks.find(n=>n.ssid===networkName());$('#sm-open-network').checked=!manual&&(selected?selected.open:!!(config&&config.ssid&&networkName()===config.ssid&&!config.hasPassword));fields.password.value='';passwordState();error('network','');error('password','');}
 function populateNetworks(){const selected=fields.network.value;fields.network.replaceChildren(new Option('Select Wi-Fi',''));const names=new Set();function add(name,label){if(!name||names.has(name))return;names.add(name);fields.network.add(new Option(label||name,'n:'+name));}if(config)add(config.ssid,config.ssid);networks.slice().sort((a,b)=>b.rssi-a.rssi).forEach(n=>add(n.ssid,n.ssid+(n.open?' · Open':'')));if(selected&&selected!=='manual')add(selected.slice(2),selected.slice(2));fields.network.add(new Option('Other network…','manual'));fields.network.value=selected;}
 async function scan(refresh=false){
  if(saving||uploading||view!=='setup'||!config)return;
- stopScan();const round=scanRound;scanning=true;$('#sm-refresh').disabled=true;text($('#sm-network-hint'),'Looking for nearby networks…');
+ stopScan();const round=scanRound;scanning=true;$('#sm-refresh').disabled=true;text($('#sm-network-hint'),'Finding networks…');
  const start=Date.now();
  async function poll(first){
   scanTimer=0;
@@ -31,7 +31,7 @@ async function scan(refresh=false){
    const data=await response.json();if(!response.ok||data.error)throw new Error(data.error||data.message||'Unable to scan networks.');
    if(round!==scanRound)return;
    if(data.scanning){if(Date.now()-start>18000)throw new Error('Scan took too long. Try again or enter the network manually.');scanTimer=setTimeout(()=>poll(false),900);return;}
-   networks=data.networks||[];populateNetworks();text($('#sm-network-hint'),networks.length?'2.4 GHz networks · choose yours or enter it manually.':'No networks found. Turn on your hotspot or enter its name manually.');announce(networks.length+' Wi-Fi networks found.');
+   networks=data.networks||[];populateNetworks();text($('#sm-network-hint'),networks.length?'2.4 GHz Wi-Fi or hotspot.':'No networks found. Turn on your hotspot or enter its name manually.');announce(networks.length+' Wi-Fi networks found.');
   }catch(e){if(round===scanRound)text($('#sm-network-hint'),e.name==='AbortError'?'Scan timed out. Enter the network manually or try again.':e.message);}
   finally{clearTimeout(timer);if(round===scanRound&&!scanTimer){scanning=false;$('#sm-refresh').disabled=false;}if(round===scanRound&&scanTimer&&Date.now()-start>18000){clearTimeout(scanTimer);scanTimer=0;scanning=false;$('#sm-refresh').disabled=false;}}
  }
@@ -55,8 +55,8 @@ async function load(){
   fields.network.value='';populateNetworks();fields.network.value=data.ssid?'n:'+data.ssid:'';fields.password.value='';$('#sm-open-network').checked=!!data.ssid&&!data.hasPassword;
   fields.address.value=data.address||'';$('#sm-worker').value=data.worker;$('#sm-pool').value=data.pool;$('#sm-port').value=data.port;$('#sm-pool-password').value=data.poolPassword;
   fields.timezone.replaceChildren(new Option('Choose your timezone',''));data.zones.forEach(z=>fields.timezone.add(new Option(z.label,z.value)));
-  if(data.timezone){if(!data.zones.some(z=>z.value===data.timezone))fields.timezone.add(new Option('Saved timezone · '+data.timezone,data.timezone));fields.timezone.value=data.timezone;text($('#sm-timezone-hint'),'Your saved timezone. Change it if needed.');}
-  else{let detected='';try{detected=Intl.DateTimeFormat().resolvedOptions().timeZone;}catch(e){}detected=aliases[detected]||detected;const suggested=data.zones.find(z=>z.iana===detected)||(detected==='UTC'?data.zones.find(z=>z.value==='UTC0'):null);fields.timezone.value=suggested?suggested.value:'';text($('#sm-timezone-hint'),suggested?'Suggested from your phone. Change it if needed.':'Choose the region where you’ll wear your watch.');}
+  if(data.timezone){if(!data.zones.some(z=>z.value===data.timezone))fields.timezone.add(new Option('Saved timezone · '+data.timezone,data.timezone));fields.timezone.value=data.timezone;text($('#sm-timezone-hint'),'Saved timezone.');}
+  else{let detected='';try{detected=Intl.DateTimeFormat().resolvedOptions().timeZone;}catch(e){}detected=aliases[detected]||detected;const suggested=data.zones.find(z=>z.iana===detected)||(detected==='UTC'?data.zones.find(z=>z.value==='UTC0'):null);fields.timezone.value=suggested?suggested.value:'';text($('#sm-timezone-hint'),suggested?'From your phone.':'Select your timezone.');}
   $('input[name="sm-format"][value="'+(data.clockFormat===24?'24':'12')+'"]').checked=true;
   $('#sm-load-message').hidden=true;inputBusy(false);networkChanged();clockPreview();setView(view);if(view==='setup')scan();
  }catch(e){text($('#sm-load-message'),'Couldn’t reach your watch. Stay connected to its SOLOMINER Wi-Fi and try again.');$('#sm-load-retry').hidden=false;}
@@ -95,10 +95,9 @@ fields.network.addEventListener('change',networkChanged);
 fields.ssid.addEventListener('input',()=>{error('network','');passwordState();});
 $('#sm-password-toggle').addEventListener('click',()=>{const show=fields.password.type==='password';fields.password.type=show?'text':'password';text($('#sm-password-toggle'),show?'Hide':'Show');$('#sm-password-toggle').setAttribute('aria-pressed',String(show));});
 $('#sm-open-network').addEventListener('change',()=>{passwordState();error('password','');});
-$('#sm-use-hotspot').addEventListener('click',()=>{fields.network.value='manual';networkChanged();hotspot=true;$('#sm-open-network').checked=false;passwordState();fields.ssid.placeholder='Your phone’s hotspot name';fields.ssid.focus();});
 $('#sm-refresh').addEventListener('click',()=>scan(true));
 for(const name of ['address','password'])fields[name].addEventListener('input',()=>error(name,''));
-fields.timezone.addEventListener('change',()=>{error('timezone','');text($('#sm-timezone-hint'),'Your watch will use this timezone.');clockPreview();});
+fields.timezone.addEventListener('change',()=>{error('timezone','');text($('#sm-timezone-hint'),'');clockPreview();});
 root.querySelectorAll('input[name="sm-format"]').forEach(el=>el.addEventListener('change',clockPreview));
 form.addEventListener('submit',save);$('#sm-save').addEventListener('click',save);
 $('#sm-load-retry').addEventListener('click',load);

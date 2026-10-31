@@ -27,7 +27,7 @@ int main() {
     assert(headingColor(detailsMs,false)==headingOrange); // Saved / silent playback is steady.
     assert(revealMs==impactMs && celebrationHoldMs==8000 && detailsMs==12089);
     assert(rewardHoldMs==6000);
-    assert(!navigationReady(dotsMs-1) && navigationReady(dotsMs));
+    assert(!pageDotsReady(dotsMs-1) && pageDotsReady(dotsMs));
     Tour tour;
     assert(tour.update(50000,detailsMs-1)==-1);
     assert(tour.update(50001,detailsMs)==1);

@@ -191,7 +191,7 @@ int main() {
   auto joining=ui::connectionStatus(false,POOL_PHASE_IDLE,false,true,0,false,network::WifiStage::Connecting);
   assert(joining.tone==ui::StatusTone::Wifi && joining.action==ui::StatusAction::None);
   auto paused=ui::connectionStatus(false,POOL_PHASE_IDLE,false,true,0,true);
-  assert(paused.action==ui::StatusAction::None && !strcmp(paused.clock,"Battery Saver"));
+  assert(paused.action==ui::StatusAction::None && !strcmp(paused.clock,"Mining paused"));
   assert(paused.tone==ui::StatusTone::Neutral && !paused.detail[0]);
   // Wi-Fi stays orange through every retry stage; guidance appears on sustained
   // outages. Saver and a recovered link suppress old warnings.
@@ -203,7 +203,7 @@ int main() {
     assert(trouble.tone==ui::StatusTone::Wifi && !strcmp(trouble.detail,"Check network or hotspot"));
     assert(!strcmp(trouble.clock,normal.clock));
     auto saver=ui::connectionStatus(false,POOL_PHASE_AUTH_REJECTED,true,false,4,true,stage,true);
-    assert(saver.tone==ui::StatusTone::Neutral && !strcmp(saver.clock,"Battery Saver"));
+    assert(saver.tone==ui::StatusTone::Neutral && !strcmp(saver.clock,"Mining paused"));
   }
   for (int phase : {POOL_PHASE_IDLE,POOL_PHASE_CONNECTING,POOL_PHASE_RETRYING,POOL_PHASE_SUBSCRIBING,POOL_PHASE_AUTHORIZING}) {
     auto normal=ui::connectionStatus(true,phase,false,false,0);
@@ -212,7 +212,7 @@ int main() {
     assert(!strcmp(trouble.clock,"Pool unavailable") && trouble.tone==ui::StatusTone::Progress);
   }
   assert(ui::connectionStatus(true,POOL_PHASE_AUTH_REJECTED,false).tone==ui::StatusTone::Progress);
-  assert(!strcmp(ui::connectionStatus(true,POOL_PHASE_WAITING_JOB,false,false).clock,"Waiting for work"));
+  assert(!strcmp(ui::connectionStatus(true,POOL_PHASE_WAITING_JOB,false,false).clock,"Starting mining"));
   assert(!strcmp(ui::connectionStatus(true,POOL_PHASE_MINING,false,false).clock,"Starting mining"));
   assert(!strcmp(ui::connectionStatus(true,POOL_PHASE_MINING,true,true).detail,"Resumes automatically"));
   auto mining=ui::connectionStatus(true,POOL_PHASE_MINING,false,true,0,false,network::WifiStage::Connected,true);
@@ -264,24 +264,8 @@ int main() {
   // The former demo row now belongs to Wi-Fi & mining; its bottom tail is blank.
   assert(ui::settingsAction(385,400,list)==PageAction::ShowSetup);
   assert(ui::settingsAction(385,439,list)==PageAction::None);
-  for(auto detail : {SettingsView::BatterySaver,SettingsView::Brightness,SettingsView::SetupConfirmation})
-    assert(ui::settingsAction(50,50,detail)==PageAction::Back);
-  assert(ui::settingsAction(205,440,SettingsView::BatterySaver)==PageAction::None);
-  for(int x : {32,205,377}) for(int y : {117,160,204})
-    assert(ui::settingsAction(x,y,SettingsView::BatterySaver)==PageAction::ToggleSaver);
-  for(int y : {116,205,240,400})
-    assert(ui::settingsAction(50,y,SettingsView::BatterySaver)==PageAction::None);
-  const ui::PageRect choices[] = {ui::brightnessLow,ui::brightnessMedium,ui::brightnessHigh};
-  const PageAction picks[] = {PageAction::BrightnessLow,PageAction::BrightnessMedium,PageAction::BrightnessHigh};
-  const int levels[] = {60,150,230};
-  for(int i=0;i<3;++i) {
-    for(int x : {32,205,377}) for(int y : {choices[i].y,choices[i].y+40,choices[i].y+87})
-      assert(ui::settingsAction(x,y,SettingsView::Brightness)==picks[i]);
-    assert(ui::selectedBrightness(picks[i])==levels[i]);
-  }
-  assert(ui::selectedBrightness(PageAction::Back)==-1);
-  for(int y : {116,205,220,309,324,413,450})
-    assert(ui::settingsAction(205,y,SettingsView::Brightness)==PageAction::None);
+  // The confirmation has no header back button; only Cancel returns.
+  assert(ui::settingsAction(50,50,SettingsView::SetupConfirmation)==PageAction::None);
   const auto confirm = SettingsView::SetupConfirmation;
   for(int x : {32,205,377}) for(int y : {282,326,369})
     assert(ui::settingsAction(x,y,confirm)==PageAction::OpenSetup);
@@ -304,6 +288,10 @@ int main() {
     assert(ui::demoAction(x,471)==ui::DemoAction::None);
   assert(ui::demoAction(50,45)==ui::DemoAction::None);
   assert(ui::demoAction(50,397)==ui::DemoAction::None);
-  assert(ui::demoAction(50,482)==ui::DemoAction::None);
+  // A near miss below the visible icon still activates its enlarged target.
+  assert(ui::demoAction(50,482)==ui::DemoAction::ToggleMute);
+  assert(ui::demoAction(355,482)==ui::DemoAction::Exit);
+  assert(ui::demoAction(50,499)==ui::DemoAction::None);
+  assert(ui::demoAction(355,499)==ui::DemoAction::None);
   puts("PASS: Settings hit targets and confirmation, status guidance; portal cleanup, power transitions, timer wrap, battery protection, retries, authorization, job freshness and settings migration");
 }

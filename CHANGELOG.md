@@ -1,5 +1,18 @@
 # Changelog
 
+## v3.1.0
+
+- Change brightness and Battery Saver directly from Settings.
+- Use black backgrounds for the everyday screens, startup, and charging, with a thicker charging ring.
+- Enlarge the two-line Block Found Demo countdown title and its Cancel button.
+- Refine the Block Found sound and close icons, with larger touch areas available on every page from the first frame.
+- Allow immediate celebration page navigation; manual input stops the automatic tour while optional music continues.
+- Keep the display lit for 60 seconds before dimming and turn it off after 65 seconds.
+- Simplify phone setup and preserve saved settings during routine updates.
+
+See [release notes](docs/RELEASE_v3.1.0.md) and [phone update instructions](docs/FIRMWARE_UPDATE.md).
+Public builds contain no music; developers can supply their own licensed recording.
+
 ## v3.0.0
 
 - GPL-3.0-only firmware with preserved NerdMiner and third-party notices.

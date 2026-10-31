@@ -72,14 +72,13 @@ void dismissBlockFoundScreen(){clearDemoControls();showingLandingSeq=showingBloc
 void clearPage(){}
 lv_obj_t* lv_scr_act(){static lv_obj_t obj;return &obj;}
 void buildDemoControls(){controls=true;}
-static int inter_28=28,inter_120=120;
+static int inter_28=28,inter_36_bold=36,inter_120=120;
 #define THEME_TEXT_WHITE 1
 lv_obj_t* pageText(const char*,const int*,int,int){return lv_scr_act();}
 lv_obj_t* pageAction(const ui::PageRect&,const char*){static lv_obj_t button;return &button;}
 void lv_obj_set_style_radius(lv_obj_t*,int,int){}
 void lv_label_set_text_fmt(lv_obj_t*,const char*,int){}
-#define SCREEN_OFF_TIMEOUT_MS 15000
-#define WAKE_TIMEOUT_MS 10000
+// DISPLAY_TIMEOUT_DEFINES
 #define DISPLAY_DIM_BRIGHTNESS 20
 #define pdTRUE 1
 #define portMAX_DELAY 1
@@ -95,11 +94,16 @@ struct InputContextAfterDraw { ~InputContextAfterDraw(){} };
 void serviceBatteryNotice() {}
 void applyBatterySaverScreenReset(){}
 void updateCelebrationTour(){}void updateDemoControls(){}
-void renderLandingSequence(){landingBuilt=true;playing=true;}
+void renderLandingSequence(){landingBuilt=true;playing=true;celebrationClockArmed=true;}
 void renderCertificate(){}void renderBlockFoundHouston(){}
 void lv_obj_invalidate(lv_obj_t*){}void lv_refr_now(void*){}void lv_timer_handler(){}
 
 '''
+# Replay tests import these stubs too, so resolve production timing on import.
+_driver = (ROOT/'src/drivers/displays/waveshareAmoled206DisplayDriver.cpp').read_text()
+_start = _driver.index('#define DIM_TIMEOUT_S')
+_end = _driver.index('// Sleep the panel', _start)
+STUBS = STUBS.replace('// DISPLAY_TIMEOUT_DEFINES', _driver[_start:_end])
 CHECKS=r'''
 int main(){
  // Upper/BOOT can wake charging, but must never start the watch from that view.
@@ -120,7 +124,7 @@ int main(){
  showingLandingSeq=false;showingBlockFoundScreen=true;playing=true;
  now+=30000;updateSmartDimming();assert(!displayOff);
  playing=false;assert(!celebrationProtectsPlayback());
- now+=10001;updateSmartDimming();assert(!displayAwake&&!displayOff);
+ now+=60001;updateSmartDimming();assert(!displayAwake&&!displayOff);
  now+=5000;updateSmartDimming();assert(displayOff);
  handleNavigationButton();assert(!displayOff&&simCelebrationActive); // Wake only.
  for(int page : {1,2,0}) {
@@ -132,9 +136,7 @@ int main(){
  valids=5;block_record::data.count=5;navigationClickPending=true;bootLongPressFlag=true;
  checkBlockFound();assert(!simCelebrationActive&&showingLandingSeq&&!displayOff&&muted);
  assert(celebrationRecord.count==5&&!navigationClickPending&&!bootLongPressFlag&&!controls);
- elapsed=ui::block_found::dotsMs-1;handleNavigationButton();
- assert(showingLandingSeq&&celebrationPage==0&&block_record::data.unread);
- elapsed=ui::block_found::dotsMs;handleNavigationButton();
+ renderLandingSequence();elapsed=0;handleNavigationButton();
  assert(!showingLandingSeq&&showingBlockFoundScreen&&celebrationPage==1&&!block_record::data.unread);
  for(int page : {2,0,1}) {handleNavigationButton();assert(celebrationPage==page&&showingBlockFoundScreen);}
  closeCelebration();assert(currentScreenIndex==NAV_MINING);
@@ -143,7 +145,7 @@ int main(){
  // A newly saved record must not be marked read by closing an older receipt.
  block_record::data.count=6;block_record::data.unread=true;closeCelebration();assert(block_record::data.unread);
  // Settings subpages use BOOT as Back; the main list still cycles normally.
- for(auto detail : {ui::SettingsView::Brightness,ui::SettingsView::BatterySaver,ui::SettingsView::SetupConfirmation}) {
+ for(auto detail : {ui::SettingsView::SetupConfirmation}) {
   currentScreenIndex=NAV_SETTINGS;settingsView=detail;settingsTappedAction=int(ui::PageAction::None);
   handleNavigationButton();assert(settingsTappedAction==int(ui::PageAction::Back)&&currentScreenIndex==NAV_SETTINGS);
  }
@@ -153,7 +155,7 @@ int main(){
  currentScreenIndex=NAV_SETTINGS;settingsView=ui::SettingsView::List;
  gesture_event_t swipe{GESTURE_SWIPE_LEFT,100,250};handleGesture(&swipe);
  assert(currentScreenIndex==NAV_CLOCK&&settingsTappedAction==int(ui::PageAction::None));
- for(auto detail : {ui::SettingsView::Brightness,ui::SettingsView::BatterySaver,ui::SettingsView::SetupConfirmation}) {
+ for(auto detail : {ui::SettingsView::SetupConfirmation}) {
   currentScreenIndex=NAV_SETTINGS;settingsView=detail;settingsTappedAction=int(ui::PageAction::None);
   swipe.type=GESTURE_SWIPE_LEFT;handleGesture(&swipe);
   assert(currentScreenIndex==NAV_SETTINGS&&settingsTappedAction==int(ui::PageAction::None));
@@ -179,6 +181,46 @@ int main(){
  startBlockFoundSimulation();renderSimCountdown();
  tap={GESTURE_TAP,200,250};handleGesture(&tap);assert(simCountdownActive);
  handleNavigationButton();assert(!simCountdownActive&&!simCelebrationActive&&!playing);
+ // Mute and close work from the first astronaut frame, including a slow
+ // audio start and a celebration that supersedes startup's splash state.
+ for (bool staleSplash : {false,true}) for (unsigned at : {0u,50u,850u,2000u}) {
+  currentScreenIndex=NAV_SETTINGS;startBlockFoundSimulation(false);
+  elapsed=at;splashActive=staleSplash;playing=at!=0;
+  tap={GESTURE_TAP,ui::demoMute.x+36,ui::demoMute.y+36};handleGesture(&tap);
+  assert(muted&&simCelebrationActive&&showingLandingSeq&&celebrationPage==0);
+  handleGesture(&tap);assert(!muted&&showingLandingSeq);
+  tap={GESTURE_TAP,ui::demoExit.x+36,ui::demoExit.y+36};handleGesture(&tap);
+  assert(!simCelebrationActive&&!showingLandingSeq&&!playing&&currentScreenIndex==NAV_SETTINGS);
+  splashActive=false;
+ }
+ // All expanded target edges/corners must activate the controls, even before
+ // the audio decoder starts. Each page uses the same production tap handler.
+ for (bool demo : {false,true}) for (int page : {-1,0,1,2})
+ for (int dx : {0,ui::demoMute.width/2,ui::demoMute.width-1})
+ for (int dy : {0,ui::demoMute.height/2,ui::demoMute.height-1}) {
+  currentScreenIndex=NAV_SETTINGS;startBlockFoundSimulation(false);
+  simCelebrationActive=demo;
+  showingLandingSeq=page==-1;showingBlockFoundScreen=page!=-1;
+  celebrationPage=page<0?0:page;elapsed=page<0?0:ui::block_found::detailsMs;
+  playing=false; // Mute is usable before the audio task has started playback.
+  tap={GESTURE_TAP,ui::demoMute.x+dx,ui::demoMute.y+dy};
+  handleGesture(&tap);assert(muted&&(showingLandingSeq||showingBlockFoundScreen));
+  handleGesture(&tap);assert(!muted&&celebrationPage==(page<0?0:page));
+  // The gap and central page dots cannot accidentally mute or close.
+  tap={GESTURE_TAP,205,451};handleGesture(&tap);
+  assert(!muted&&(showingLandingSeq||showingBlockFoundScreen));
+  tap={GESTURE_TAP,ui::demoExit.x+dx,ui::demoExit.y+dy};handleGesture(&tap);
+  assert(!showingLandingSeq&&!showingBlockFoundScreen&&!simCelebrationActive&&!playing);
+  assert(currentScreenIndex==(demo?NAV_SETTINGS:NAV_MINING));
+ }
+ // A real find has the same immediate controls and acknowledges its record.
+ ++valids;block_record::data.count=valids;block_record::data.unread=true;
+ checkBlockFound();elapsed=0;splashActive=true;
+ tap={GESTURE_TAP,ui::demoMute.x+36,ui::demoMute.y+36};handleGesture(&tap);
+ assert(muted&&showingLandingSeq&&block_record::data.unread);
+ tap={GESTURE_TAP,ui::demoExit.x+36,ui::demoExit.y+36};handleGesture(&tap);
+ assert(!showingLandingSeq&&!playing&&!block_record::data.unread&&currentScreenIndex==NAV_MINING);
+ splashActive=false;
  // Unsigned elapsed math still completes across millis rollover.
  now=0xfffffc00u;startBlockFoundSimulation();renderSimCountdown();
  assert(simLastCountdown==3);now+=1000;renderSimCountdown();assert(simLastCountdown==2);
